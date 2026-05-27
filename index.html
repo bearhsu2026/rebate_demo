@@ -1,0 +1,5112 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="format-detection" content="telephone=no">
+  <title>博弈遊戲王 ─ 玩直播間遊戲 天天領鑽石</title>
+  <style>
+    /* ═══════════════════════════════════════════════════
+       SWAG Design Tokens (完整範本)
+    ═══════════════════════════════════════════════════ */
+    :root {
+      --color-primary:              #00D2BE;
+      --color-primary-hover:        rgba(0,210,190,0.80);
+      --color-primary-pressed:      rgba(0,210,190,0.40);
+      --color-primary-disabled:     rgba(71,71,71,0.20);
+      --color-text-primary:         #00D2BE;
+      --color-text-info:            #60C4E8;
+      --color-text-error:           #CF0404;
+      --color-on-primary-1:         #FFFFFF;
+      --color-on-primary-2:         #C8C8C8;
+      --color-on-primary-3:         #646464;
+      --color-on-primary-disabled:  rgba(255,255,255,0.40);
+      --color-surface:              #191919;
+      --color-surface-container:    #232323;
+      --color-surface-variant:      rgba(71,71,71,0.40);
+      --color-outline:              #474747;
+      --color-outline-variant:      rgba(71,71,71,0.40);
+      --color-outline-brand:        #00D2BE;
+      --color-scrim:                rgba(25,25,25,0.80);
+      --color-shadow:               rgba(25,25,25,0.20);
+      --color-success:              #00D2BE;
+      --color-error:                #CF0404;
+      --color-info:                 #60C4E8;
+      --color-secondary:            #FFFFFF;
+      --color-tertiary:             #474747;
+      --color-null-hover:           rgba(255,255,255,0.12);
+      --color-creator:              #FFD100;
+      --color-loverse:              #F6418D;
+      --color-asset:                #8238BA;
+      --color-preset-orange:        #FF7200;
+      --color-preset-gold:          #FFA500;
+      --color-preset-green:         #15EA48;
+      --color-preset-pink:          #F6418D;
+      --color-preset-purple:        #8238BA;
+
+      --font-family:                'PingFang TC', -apple-system, sans-serif;
+      --font-weight-regular:        400;
+      --font-weight-semibold:       600;
+      --font-headline-large:        36px;
+      --font-headline-medium:       32px;
+      --font-headline-small:        28px;
+      --font-title-large:           22px;
+      --font-title-medium:          20px;
+      --font-title-small:           18px;
+      --font-body-large:            16px;
+      --font-body-medium:           14px;
+      --font-body-small:            12px;
+
+      --spacing-1: 2px;  --spacing-2: 4px;   --spacing-3: 8px;
+      --spacing-4: 12px; --spacing-5: 16px;  --spacing-6: 24px;
+      --spacing-7: 32px; --spacing-8: 40px;  --spacing-9: 48px;
+      --spacing-10: 64px;
+
+      --radius-xs: 4px; --radius-s: 8px;  --radius-m: 12px;
+      --radius-l: 16px; --radius-xl: 28px; --radius-full: 1000px;
+
+      --container-standard: 480px;
+      --page-padding: var(--spacing-5);
+
+      /* ── 活動專屬 Tier 色彩 (基於 SWAG token 值) ── */
+      --tier-bronze-color:   var(--color-preset-orange);
+      --tier-silver-color:   var(--color-on-primary-2);
+      --tier-gold-color:     var(--color-creator);
+      --tier-diamond-color:  var(--color-primary);
+
+      --tier-bronze-glow:    rgba(255,114,0,0.25);
+      --tier-silver-glow:    rgba(200,200,200,0.20);
+      --tier-gold-glow:      rgba(255,209,0,0.25);
+      --tier-diamond-glow:   rgba(0,210,190,0.25);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Base
+    ═══════════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+      overflow-x: hidden;
+      /* Firefox scrollbar (rgba unsupported in some FF versions, so use solid colors close to teal/purple) */
+      scrollbar-width: thin;
+      scrollbar-color: #4a2380 #1c0a47;
+    }
+
+    body {
+      font-family: var(--font-family);
+      font-size: var(--font-body-large);
+      font-weight: var(--font-weight-regular);
+      color: var(--color-on-primary-1);
+      background-color: var(--color-surface);
+      min-height: 100vh;
+      padding-bottom: var(--spacing-10);
+      overflow-x: hidden;
+      max-width: 100vw;
+    }
+
+    /* WebKit (Chrome / Safari / Edge / mobile) scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(28, 10, 71, 0.5);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #8238BA 0%, #5a2493 100%);
+      border-radius: 8px;
+      border: 1px solid rgba(0,210,190,0.3);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #9a4ed1 0%, #6e2faa 100%);
+    }
+    /* Lock horizontal scroll inside any potentially overflowing element */
+    .page-content,
+    .header {
+      max-width: 100vw;
+      overflow-x: clip;
+    }
+
+    .hidden { display: none !important; }
+
+    /* ═══════════════════════════════════════════════════
+       Language Switcher
+    ═══════════════════════════════════════════════════ */
+    .lang-switcher {
+      position: fixed;
+      top: var(--spacing-3);
+      right: var(--spacing-4);
+      z-index: 999;
+      display: flex;
+      gap: var(--spacing-1);
+      background: rgba(25,25,25,0.85);
+      border: 1px solid rgba(0,210,190,0.30);
+      border-radius: var(--radius-full);
+      padding: var(--spacing-1) var(--spacing-2);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 0 12px rgba(0,210,190,0.15);
+    }
+    .lang-btn {
+      background: none;
+      border: none;
+      color: var(--color-on-primary-3);
+      font-size: var(--font-body-small);
+      font-family: var(--font-family);
+      cursor: pointer;
+      padding: var(--spacing-1) var(--spacing-2);
+      border-radius: var(--radius-full);
+      transition: color 0.2s, background 0.2s;
+      white-space: nowrap;
+    }
+    .lang-btn.active,
+    .lang-btn:hover {
+      color: var(--color-on-primary-1);
+      background: var(--color-surface-variant);
+    }
+    .lang-btn.active {
+      color: var(--color-primary);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Header (Purple Cosmos Theme — game prize vibe)
+    ═══════════════════════════════════════════════════ */
+    .header {
+      position: relative;
+      padding: calc(var(--spacing-9) + 8px) var(--page-padding) var(--spacing-8);
+      text-align: center;
+      background:
+        radial-gradient(ellipse 50% 30% at 50% 100%, rgba(0,210,190,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 80% 50% at 20% 20%, rgba(246,65,141,0.20) 0%, transparent 60%),
+        radial-gradient(ellipse 80% 50% at 80% 30%, rgba(255,114,0,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 100% 80% at 50% 0%, rgba(130,56,186,0.55) 0%, transparent 70%),
+        linear-gradient(180deg, #2a1066 0%, #3b1a87 30%, #2c1166 60%, #1c0a47 100%);
+      border-bottom: 1px solid var(--color-outline-variant);
+      overflow: hidden;
+    }
+    /* Starfield (denser stars on space theme) */
+    .header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(2px 2px at 8% 15%, #fff 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 18% 35%, rgba(255,255,255,0.85) 0%, transparent 100%),
+        radial-gradient(1px 1px at 28% 22%, #fff 0%, transparent 100%),
+        radial-gradient(2px 2px at 42% 12%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 50% 38%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(2px 2px at 62% 25%, #fff 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 72% 48%, rgba(255,255,255,0.85) 0%, transparent 100%),
+        radial-gradient(1px 1px at 86% 18%, #fff 0%, transparent 100%),
+        radial-gradient(2px 2px at 95% 38%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 14% 60%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 36% 72%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(1px 1px at 58% 65%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 82% 82%, rgba(255,255,255,0.7) 0%, transparent 100%);
+      animation: twinkle 4s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0.55; }
+    }
+
+    /* Decorative cosmos layer (planets/coins/diamonds) */
+    .header-deco { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+
+    /* Planet — Saturn-like with ring (top-left) */
+    .deco-planet-saturn {
+      position: absolute;
+      top: -10px; left: -12px;
+      width: 90px; height: 90px;
+      animation: float-slow 7s ease-in-out infinite;
+      opacity: 0.85;
+    }
+    .deco-planet-saturn .ball {
+      position: absolute; inset: 12% 18% 28% 12%;
+      background: radial-gradient(circle at 35% 35%, #ff8c4a 0%, #d65a1f 50%, #8a3300 100%);
+      border-radius: 50%;
+      box-shadow: inset -6px -6px 12px rgba(0,0,0,0.4);
+    }
+    .deco-planet-saturn .ring {
+      position: absolute; top: 38%; left: -8%; right: -8%; height: 14px;
+      border: 3px solid #ff7a3c;
+      border-radius: 50%;
+      transform: rotate(-18deg);
+      box-shadow: 0 0 14px rgba(255,114,0,0.5);
+      opacity: 0.85;
+    }
+    .deco-planet-saturn .ring::before {
+      content: '';
+      position: absolute; inset: 2px;
+      border: 2px solid rgba(255,180,120,0.55);
+      border-radius: 50%;
+    }
+
+    /* Planet — purple moon (top-right) */
+    .deco-planet-moon {
+      position: absolute;
+      top: -16px; right: -12px;
+      width: 70px; height: 70px;
+      background: radial-gradient(circle at 35% 35%, #c69df0 0%, #9a5fd6 55%, #5a2ea3 100%);
+      border-radius: 50%;
+      box-shadow:
+        inset -8px -8px 18px rgba(0,0,0,0.45),
+        0 0 24px rgba(154,95,214,0.5);
+      animation: float-slow 8s ease-in-out infinite reverse;
+      opacity: 0.9;
+    }
+    .deco-planet-moon::before,
+    .deco-planet-moon::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(60,20,110,0.5);
+    }
+    .deco-planet-moon::before { top: 30%; left: 22%; width: 12px; height: 12px; }
+    .deco-planet-moon::after  { top: 58%; left: 48%; width: 8px;  height: 8px; }
+
+    @keyframes float-slow {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(8px); }
+    }
+
+    /* Floating diamonds (now teal/cyan, varied sizes) */
+    .deco-diamond {
+      position: absolute;
+      width: 18px; height: 18px;
+      transform: rotate(45deg);
+      background: linear-gradient(135deg, rgba(0,210,190,0.85) 0%, rgba(0,210,190,0.25) 100%);
+      border: 1px solid rgba(0,210,190,0.9);
+      border-radius: 3px;
+      box-shadow: 0 0 14px rgba(0,210,190,0.6);
+      animation: float-diamond 5s ease-in-out infinite;
+    }
+    .deco-diamond.d1 { top: 24%;  left: 9%;   animation-delay: 0s;   }
+    .deco-diamond.d2 { top: 14%;  left: 42%;  width: 12px; height: 12px; animation-delay: 1.0s; opacity: 0.75; }
+    .deco-diamond.d3 { top: 26%;  right: 14%; width: 14px; height: 14px; animation-delay: 1.7s; opacity: 0.85; }
+    .deco-diamond.d4 { top: 60%;  right: 8%;  width: 11px; height: 11px; animation-delay: 2.6s; opacity: 0.7; }
+    .deco-diamond.d5 { top: 72%;  left: 14%;  width: 10px; height: 10px; animation-delay: 0.6s; opacity: 0.6; }
+    @keyframes float-diamond {
+      0%, 100% { transform: rotate(45deg) translateY(0); }
+      50%      { transform: rotate(45deg) translateY(-8px); }
+    }
+
+    /* Gold coins floating */
+    .deco-coin {
+      position: absolute;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #fff3a0 0%, #ffd100 40%, #cc9a00 100%);
+      border: 2px solid #ffe566;
+      box-shadow: 0 0 12px rgba(255,209,0,0.55), inset -3px -3px 6px rgba(0,0,0,0.25);
+      animation: coin-float 6s ease-in-out infinite;
+    }
+    .deco-coin::after {
+      content: '★';
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(204,154,0,0.85);
+      font-size: 14px;
+      font-weight: 900;
+    }
+    .deco-coin.c1 { top: 46%; left: 4%;   animation-delay: 0s; }
+    .deco-coin.c2 { top: 78%; right: 6%;  width: 22px; height: 22px; animation-delay: 1.5s; }
+    .deco-coin.c2::after { font-size: 11px; }
+    @keyframes coin-float {
+      0%, 100% { transform: translateY(0) rotate(-8deg); }
+      50%      { transform: translateY(-10px) rotate(8deg); }
+    }
+
+    /* Day badge (more prominent purple pill) */
+    .day-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      background: linear-gradient(180deg, rgba(130,56,186,0.65), rgba(60,20,110,0.55));
+      border: 1.5px solid rgba(255,255,255,0.35);
+      border-radius: var(--radius-full);
+      padding: var(--spacing-2) var(--spacing-5);
+      font-size: var(--font-body-medium);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-on-primary-1);
+      margin-bottom: var(--spacing-4);
+      position: relative;
+      backdrop-filter: blur(4px);
+      box-shadow:
+        0 0 24px rgba(130,56,186,0.55),
+        inset 0 1px 0 rgba(255,255,255,0.25);
+      letter-spacing: 0.04em;
+    }
+    .day-badge-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      box-shadow: 0 0 8px var(--color-primary);
+      animation: pulse-dot 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.5; transform: scale(0.7); }
+    }
+
+    /* Title (larger, with stronger glow like the reference image) */
+    .activity-title {
+      font-size: var(--font-headline-large);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-on-primary-1);
+      line-height: 1.1;
+      margin-bottom: var(--spacing-3);
+      position: relative;
+      letter-spacing: 0.06em;
+      text-shadow:
+        0 0 24px rgba(255,255,255,0.6),
+        0 0 40px rgba(130,56,186,0.8),
+        0 0 60px rgba(246,65,141,0.5),
+        0 2px 8px rgba(0,0,0,0.6);
+    }
+
+    /* Subtitle pill */
+    .activity-subtitle {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      background: linear-gradient(90deg, rgba(0,210,190,0.20), rgba(246,65,141,0.20));
+      border: 1px solid rgba(255,255,255,0.30);
+      border-radius: var(--radius-full);
+      padding: var(--spacing-2) var(--spacing-5);
+      font-size: var(--font-body-medium);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-on-primary-1);
+      margin-bottom: var(--spacing-4);
+      position: relative;
+      letter-spacing: 0.02em;
+      backdrop-filter: blur(4px);
+    }
+    .activity-subtitle::before,
+    .activity-subtitle::after {
+      content: '◆';
+      color: var(--color-primary);
+      font-size: 10px;
+      opacity: 0.9;
+    }
+
+    .activity-dates {
+      font-size: var(--font-body-small);
+      color: var(--color-on-primary-2);
+      letter-spacing: 0.08em;
+      margin-bottom: var(--spacing-4);
+      position: relative;
+      opacity: 0.85;
+    }
+    .activity-tz {
+      display: inline-block;
+      margin-left: var(--spacing-1);
+      padding: 1px 6px;
+      border-radius: var(--radius-xs);
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      font-size: 10px;
+      color: var(--color-on-primary-2);
+      letter-spacing: 0.04em;
+      vertical-align: middle;
+    }
+
+    .games-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: var(--spacing-2);
+      position: relative;
+    }
+    .game-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(25,15,50,0.55);
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: var(--radius-full);
+      padding: 3px 10px 3px 4px;   /* slightly tighter left to make room for image */
+      font-size: var(--font-body-small);
+      color: var(--color-on-primary-1);
+      backdrop-filter: blur(4px);
+      max-width: 100%;
+    }
+    .game-tag-img {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Page Content
+    ═══════════════════════════════════════════════════ */
+    .page-content {
+      max-width: var(--container-standard);
+      margin: 0 auto;
+      padding: var(--spacing-6) var(--page-padding) 0;
+    }
+
+    .section { margin-bottom: var(--spacing-5); }
+
+    .section-title {
+      font-size: var(--font-body-medium);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-on-primary-3);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: var(--spacing-3);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Skeleton Loading
+    ═══════════════════════════════════════════════════ */
+    @keyframes shimmer {
+      0%   { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+    .skeleton-card {
+      background: var(--color-surface-container);
+      border-radius: var(--radius-l);
+      padding: var(--spacing-6);
+      border: 1px solid var(--color-outline-variant);
+    }
+    .skel-line {
+      height: 14px;
+      border-radius: var(--radius-xs);
+      background: linear-gradient(90deg,
+        var(--color-surface-variant) 25%,
+        rgba(71,71,71,0.6) 50%,
+        var(--color-surface-variant) 75%);
+      background-size: 400px 100%;
+      animation: shimmer 1.4s ease-in-out infinite;
+      margin-bottom: var(--spacing-3);
+    }
+    .skel-line.wide   { width: 70%; }
+    .skel-line.medium { width: 50%; }
+    .skel-line.short  { width: 35%; }
+    .skel-row { display: flex; gap: var(--spacing-3); margin-top: var(--spacing-5); }
+    .skel-block {
+      flex: 1; height: 56px;
+      border-radius: var(--radius-s);
+      background: linear-gradient(90deg,
+        var(--color-surface-variant) 25%,
+        rgba(71,71,71,0.6) 50%,
+        var(--color-surface-variant) 75%);
+      background-size: 400px 100%;
+      animation: shimmer 1.4s ease-in-out infinite;
+    }
+    .skel-block:nth-child(2) { animation-delay: 0.15s; }
+    .skel-block:nth-child(3) { animation-delay: 0.30s; }
+
+    /* ═══════════════════════════════════════════════════
+       Today Card
+    ═══════════════════════════════════════════════════ */
+    .today-card {
+      background:
+        radial-gradient(ellipse 70% 50% at 0% 0%, rgba(130,56,186,0.10) 0%, transparent 60%),
+        var(--color-surface-container);
+      border-radius: var(--radius-l);
+      border: 1px solid var(--color-outline);
+      overflow: hidden;
+      animation: fade-up 0.4s ease both;
+      box-shadow:
+        0 0 0 1px rgba(0,210,190,0.06),
+        0 8px 24px -8px rgba(25,25,25,0.4);
+    }
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .today-tier-banner {
+      padding: var(--spacing-5) var(--spacing-6) var(--spacing-4);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-4);
+      border-bottom: 1px solid var(--color-outline-variant);
+    }
+    .tier-icon-wrap {
+      width: 56px; height: 56px;
+      border-radius: var(--radius-m);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .tier-icon-wrap::after {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      border: 1px solid currentColor;
+      opacity: 0.5;
+    }
+    .tier-icon-wrap.bronze {
+      background: rgba(255,114,0,0.12);
+      color: var(--tier-bronze-color);
+      box-shadow: 0 0 20px var(--tier-bronze-glow);
+    }
+    .tier-icon-wrap.silver {
+      background: rgba(200,200,200,0.08);
+      color: var(--tier-silver-color);
+      box-shadow: 0 0 20px var(--tier-silver-glow);
+    }
+    .tier-icon-wrap.gold {
+      background: rgba(255,209,0,0.10);
+      color: var(--tier-gold-color);
+      box-shadow: 0 0 20px var(--tier-gold-glow);
+    }
+    .tier-icon-wrap.diamond {
+      background: rgba(0,210,190,0.10);
+      color: var(--tier-diamond-color);
+      box-shadow: 0 0 20px var(--tier-diamond-glow);
+    }
+    .tier-info { flex: 1; min-width: 0; }
+    .tier-label {
+      font-size: var(--font-body-small);
+      color: var(--color-on-primary-3);
+      margin-bottom: var(--spacing-1);
+    }
+    .tier-name {
+      font-size: var(--font-title-medium);
+      font-weight: var(--font-weight-semibold);
+      line-height: 1;
+      margin-bottom: var(--spacing-1);
+    }
+    .tier-rate {
+      font-size: var(--font-body-small);
+      color: var(--color-on-primary-2);
+    }
+    .tier-rate strong { color: var(--color-primary); }
+
+    .today-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      border-bottom: 1px solid var(--color-outline-variant);
+    }
+    .stat-cell {
+      padding: var(--spacing-4) var(--spacing-3);
+      text-align: center;
+      border-right: 1px solid var(--color-outline-variant);
+    }
+    .stat-cell:last-child { border-right: none; }
+    .stat-label {
+      font-size: var(--font-body-small);
+      color: var(--color-on-primary-3);
+      margin-bottom: var(--spacing-1);
+      line-height: 1.2;
+    }
+    .stat-value {
+      font-size: var(--font-title-small);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-on-primary-1);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .stat-value.highlight { color: var(--color-primary); }
+    .stat-value.gold-val  { color: var(--tier-gold-color); }
+
+    .today-progress { padding: var(--spacing-4) var(--spacing-5); }
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: var(--spacing-2);
+    }
+    .progress-label {
+      font-size: var(--font-body-small);
+      color: var(--color-on-primary-3);
+    }
+    .progress-hint {
+      font-size: var(--font-body-small);
+      color: var(--color-on-primary-3);
+    }
+    .progress-track {
+      height: 6px;
+      background: var(--color-surface-variant);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: var(--radius-full);
+      background: var(--color-primary);
+      transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    .progress-fill.bronze  { background: var(--tier-bronze-color); }
+    .progress-fill.silver  { background: var(--tier-silver-color); }
+    .progress-fill.gold    { background: var(--tier-gold-color); }
+    .progress-fill.diamond { background: var(--tier-diamond-color); }
+    .progress-fill.maxed   { background: var(--tier-diamond-color); }
+
+    .bonus-row {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+      padding: var(--spacing-3) var(--spacing-5);
+      background: rgba(71,71,71,0.2);
+      border-top: 1px solid var(--color-outline-variant);
+      font-size: var(--font-body-small);
+    }
+    .bonus-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .bonus-dot.on  { background: var(--color-preset-green); box-shadow: 0 0 6px var(--color-preset-green); }
+    .bonus-dot.off { background: var(--color-on-primary-3); }
+    .bonus-text { color: var(--color-on-primary-2); flex: 1; }
+    .bonus-count { color: var(--color-on-primary-3); font-size: var(--font-body-small); }
+
+    .old-badge-note {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      padding: var(--spacing-2) var(--spacing-5);
+      font-size: var(--font-body-small);
+      color: var(--tier-gold-color);
+      background: rgba(255,209,0,0.06);
+      border-top: 1px solid rgba(255,209,0,0.15);
+    }
+
+    .no-today-card {
+      background: var(--color-surface-container);
+      border: 1px dashed var(--color-outline);
+      border-radius: var(--radius-l);
+      padding: var(--spacing-8) var(--spacing-6);
+      text-align: center;
+      animation: fade-up 0.4s ease both;
+    }
+    .no-today-icon { font-size: 40px; margin-bottom: var(--spacing-3); opacity: 0.5; }
+    .no-today-title {
+      font-size: var(--font-title-small);
+      color: var(--color-on-primary-2);
+      margin-bottom: var(--spacing-2);
+    }
+    .no-today-sub { font-size: var(--font-body-small); color: var(--color-on-primary-3); }
+
+    /* ═══════════════════════════════════════════════════
+       Badge Card
+    ═══════════════════════════════════════════════════ */
+    .badge-card {
+      background:
+        radial-gradient(ellipse 60% 60% at 100% 0%, rgba(130,56,186,0.08) 0%, transparent 60%),
+        var(--color-surface-container);
+      border-radius: var(--radius-l);
+      border: 1px solid var(--color-outline);
+      overflow: hidden;
+      animation: fade-up 0.4s 0.1s ease both;
+      box-shadow:
+        0 0 0 1px rgba(255,209,0,0.05),
+        0 8px 24px -8px rgba(25,25,25,0.4);
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .badge-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255,209,0,0.4);
+      box-shadow:
+        0 0 0 1px rgba(255,209,0,0.15),
+        0 12px 28px -8px rgba(25,25,25,0.55);
+    }
+    .badge-card:active {
+      transform: translateY(0);
+      transition-duration: 0.1s;
+    }
+    .badge-inner {
+      padding: var(--spacing-5) var(--spacing-6);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-4);
+    }
+    .badge-icon-wrap {
+      width: 56px; height: 56px;
+      flex-shrink: 0;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .badge-icon-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transition: filter 0.35s ease, transform 0.35s ease;
+    }
+    .badge-icon-wrap.earned img {
+      filter: drop-shadow(0 0 10px rgba(255,209,0,0.55));
+      animation: badge-breath 3s ease-in-out infinite;
+    }
+    .badge-icon-wrap.pending img {
+      /* Per spec: badge always shown in full color, regardless of earned status.
+         Differentiation is conveyed by the "Not yet earned" tag instead. */
+      filter: drop-shadow(0 0 10px rgba(255,209,0,0.45));
+    }
+    .badge-card:hover .badge-icon-wrap img {
+      transform: scale(1.06);
+    }
+    @keyframes badge-breath {
+      0%, 100% { filter: drop-shadow(0 0 10px rgba(255,209,0,0.55)); }
+      50%      { filter: drop-shadow(0 0 18px rgba(255,209,0,0.85)); }
+    }
+    /* Fallback emoji when SVG fails to load */
+    .badge-icon-fallback {
+      font-size: 36px;
+      filter: drop-shadow(0 0 8px var(--tier-gold-glow));
+    }
+    .badge-icon-wrap.pending .badge-icon-fallback {
+      /* Same as earned per spec */
+      filter: drop-shadow(0 0 8px var(--tier-gold-glow));
+    }
+
+    .badge-text { flex: 1; min-width: 0; }
+    .badge-name {
+      font-size: var(--font-body-medium);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-on-primary-1);
+      margin-bottom: var(--spacing-1);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      flex-wrap: wrap;
+    }
+    .badge-name .tap-hint {
+      font-size: 11px;
+      font-weight: var(--font-weight-regular);
+      color: var(--color-on-primary-3);
+      opacity: 0.7;
+    }
+    .badge-not-yet-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      padding: 1px 8px;
+      border-radius: var(--radius-full);
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: var(--color-on-primary-3);
+      font-size: 10px;
+      font-weight: var(--font-weight-semibold);
+      letter-spacing: 0.04em;
+    }
+    .badge-card .tap-arrow {
+      flex-shrink: 0;
+      color: var(--color-on-primary-3);
+      font-size: 18px;
+      opacity: 0.5;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+    .badge-card:hover .tap-arrow {
+      transform: translateX(3px);
+      opacity: 0.9;
+    }
+    .badge-status-earned {
+      font-size: var(--font-body-small);
+      color: var(--color-preset-green);
+      font-weight: var(--font-weight-semibold);
+    }
+    .badge-status-pending {
+      font-size: var(--font-body-small);
+      color: var(--color-on-primary-3);
+    }
+    .badge-progress-section {
+      padding: 0 var(--spacing-6) var(--spacing-5);
+    }
+    .badge-progress-nums {
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--font-body-small);
+      color: var(--color-on-primary-3);
+      margin-bottom: var(--spacing-2);
+    }
+    .badge-progress-nums span:first-child { color: var(--color-on-primary-2); }
+
+    /* ═══════════════════════════════════════════════════
+       Settled Records
+    ═══════════════════════════════════════════════════ */
+    .records-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-3);
+    }
+    .total-rebate-chip {
+      background: rgba(0,210,190,0.10);
+      border: 1px solid rgba(0,210,190,0.25);
+      border-radius: var(--radius-full);
+      padding: var(--spacing-1) var(--spacing-3);
+      font-size: var(--font-body-small);
+      color: var(--color-primary);
+    }
+    .record-card {
+      background: var(--color-surface-container);
+      border-radius: var(--radius-m);
+      border: 1px solid var(--color-outline-variant);
+      margin-bottom: var(--spacing-3);
+      overflow: hidden;
+      animation: fade-up 0.35s ease both;
+    }
+    .record-card:last-child { margin-bottom: 0; }
+    .record-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-3) var(--spacing-4);
+      border-bottom: 1px solid var(--color-outline-variant);
+    }
+    .record-date {
+      font-size: var(--font-body-medium);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-on-primary-1);
+    }
+    .record-tier-chip {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-1);
+      padding: var(--spacing-1) var(--spacing-2);
+      border-radius: var(--radius-full);
+      font-size: var(--font-body-small);
+      font-weight: var(--font-weight-semibold);
+    }
+    .record-tier-chip.bronze { color: var(--tier-bronze-color); background: rgba(255,114,0,0.10); }
+    .record-tier-chip.silver { color: var(--tier-silver-color); background: rgba(200,200,200,0.08); }
+    .record-tier-chip.gold   { color: var(--tier-gold-color);   background: rgba(255,209,0,0.10); }
+    .record-tier-chip.diamond{ color: var(--tier-diamond-color);background: rgba(0,210,190,0.10); }
+    .record-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      padding: var(--spacing-3) var(--spacing-2);
+    }
+    .record-stat { padding: var(--spacing-2) var(--spacing-2); text-align: center; }
+    .record-stat-label {
+      font-size: 11px;
+      color: var(--color-on-primary-3);
+      margin-bottom: var(--spacing-1);
+      line-height: 1;
+    }
+    .record-stat-value {
+      font-size: var(--font-body-medium);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-on-primary-1);
+    }
+    .record-stat-value.teal { color: var(--color-primary); }
+    .record-bonus-tag {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-1);
+      padding: var(--spacing-2) var(--spacing-4);
+      background: rgba(21,234,72,0.06);
+      border-top: 1px solid rgba(21,234,72,0.12);
+      font-size: var(--font-body-small);
+      color: var(--color-preset-green);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Rules Section
+    ═══════════════════════════════════════════════════ */
+    .rules-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-4) var(--spacing-5);
+      background: var(--color-surface-container);
+      border: 1px solid var(--color-outline-variant);
+      border-radius: var(--radius-m);
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.2s;
+    }
+    .rules-toggle:hover { background: var(--color-surface-variant); }
+    .rules-toggle-label { font-size: var(--font-body-medium); color: var(--color-on-primary-2); }
+    .rules-arrow {
+      font-size: var(--font-body-small);
+      color: var(--color-on-primary-3);
+      transition: transform 0.25s;
+    }
+    .rules-arrow.open { transform: rotate(180deg); }
+    .rules-body {
+      background: var(--color-surface-container);
+      border: 1px solid var(--color-outline-variant);
+      border-top: none;
+      border-radius: 0 0 var(--radius-m) var(--radius-m);
+      padding: 0 var(--spacing-5) var(--spacing-5);
+      display: none;
+    }
+    .rules-body.open { display: block; }
+    .rules-sub-title {
+      font-size: var(--font-body-small);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding-top: var(--spacing-4);
+      padding-bottom: var(--spacing-3);
+    }
+    .tier-table { width: 100%; border-collapse: collapse; }
+    .tier-table th {
+      font-size: 11px;
+      color: var(--color-on-primary-3);
+      text-align: left;
+      padding: var(--spacing-2) var(--spacing-2);
+      border-bottom: 1px solid var(--color-outline-variant);
+      font-weight: var(--font-weight-regular);
+    }
+    .tier-table td {
+      font-size: var(--font-body-small);
+      color: var(--color-on-primary-2);
+      padding: var(--spacing-3) var(--spacing-2);
+      border-bottom: 1px solid var(--color-outline-variant);
+      vertical-align: middle;
+    }
+    .tier-table tr:last-child td { border-bottom: none; }
+    .tier-table .tier-cell {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      font-weight: var(--font-weight-semibold);
+    }
+    .rules-note {
+      font-size: var(--font-body-small);
+      color: var(--color-on-primary-3);
+      line-height: 1.6;
+      padding: var(--spacing-2) 0;
+    }
+    .rules-note + .rules-note { border-top: 1px solid var(--color-outline-variant); }
+    .rules-highlight { color: var(--color-on-primary-2); }
+
+    /* ═══════════════════════════════════════════════════
+       Notice Section (collapsible, same skeleton as rules)
+    ═══════════════════════════════════════════════════ */
+    .notice-toggle {
+      margin-top: var(--spacing-3);
+    }
+    .notice-toggle .notice-icon {
+      margin-right: var(--spacing-2);
+      font-size: var(--font-body-medium);
+    }
+    .notice-toggle .rules-toggle-label {
+      display: inline-flex;
+      align-items: center;
+    }
+    .notice-body {
+      /* same .rules-body, but list-friendly padding */
+      padding: 0 var(--spacing-5) var(--spacing-4);
+    }
+    .notice-list {
+      margin: 0;
+      padding: var(--spacing-3) 0 0 0;
+      list-style: none;
+      counter-reset: notice-counter;
+    }
+    .notice-list li {
+      counter-increment: notice-counter;
+      position: relative;
+      padding: var(--spacing-3) 0 var(--spacing-3) var(--spacing-7);
+      font-size: var(--font-body-small);
+      color: var(--color-on-primary-2);
+      line-height: 1.7;
+      letter-spacing: 0.01em;
+    }
+    .notice-list li + li {
+      border-top: 1px solid var(--color-outline-variant);
+    }
+    .notice-list li::before {
+      content: counter(notice-counter);
+      position: absolute;
+      left: 0;
+      top: calc(var(--spacing-3) + 2px);
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: rgba(0,210,190,0.10);
+      border: 1px solid rgba(0,210,190,0.3);
+      color: var(--color-primary);
+      font-size: 11px;
+      font-weight: var(--font-weight-semibold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Countdown (Header)
+    ═══════════════════════════════════════════════════ */
+    .countdown {
+      position: relative;
+      margin: var(--spacing-3) auto var(--spacing-5);
+      z-index: 1;
+    }
+    .countdown-label {
+      font-size: 11px;
+      color: var(--color-on-primary-2);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: var(--spacing-2);
+      opacity: 0.75;
+    }
+    .countdown-grid {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-1);
+    }
+    .countdown-cell {
+      background: linear-gradient(180deg, rgba(0,210,190,0.18), rgba(0,210,190,0.06));
+      border: 1px solid rgba(0,210,190,0.35);
+      border-radius: var(--radius-s);
+      padding: var(--spacing-2) var(--spacing-3);
+      min-width: 48px;
+      text-align: center;
+      box-shadow: 0 0 12px rgba(0,210,190,0.10);
+    }
+    .countdown-num {
+      font-size: var(--font-title-medium);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-on-primary-1);
+      line-height: 1.1;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.04em;
+    }
+    .countdown-unit {
+      font-size: 10px;
+      color: var(--color-on-primary-3);
+      margin-top: 2px;
+      letter-spacing: 0.05em;
+    }
+    .countdown-sep {
+      font-size: var(--font-title-medium);
+      color: rgba(0,210,190,0.5);
+      font-weight: var(--font-weight-semibold);
+      padding: 0 1px;
+      animation: blink-sep 1s ease-in-out infinite;
+    }
+    @keyframes blink-sep {
+      0%, 100% { opacity: 0.5; }
+      50%      { opacity: 1; }
+    }
+    .countdown-message {
+      font-size: var(--font-body-small);
+      color: var(--color-on-primary-2);
+      padding: var(--spacing-2) var(--spacing-4);
+      background: rgba(0,0,0,0.30);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: var(--radius-full);
+      display: inline-block;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Today Card · Updated-at chip
+    ═══════════════════════════════════════════════════ */
+    .updated-chip {
+      position: absolute;
+      top: var(--spacing-3);
+      right: var(--spacing-4);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-1);
+      font-size: 10px;
+      color: var(--color-on-primary-3);
+      letter-spacing: 0.02em;
+      z-index: 2;
+    }
+    .updated-chip .chip-sep {
+      color: var(--color-on-primary-3);
+      opacity: 0.5;
+      margin: 0 2px;
+    }
+    .updated-chip .refresh-btn {
+      background: none;
+      border: none;
+      color: var(--color-on-primary-3);
+      cursor: pointer;
+      padding: 2px;
+      margin-left: var(--spacing-1);
+      font-size: 12px;
+      transition: transform 0.5s ease, color 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    .updated-chip .refresh-btn:hover { color: var(--color-primary); }
+    .updated-chip .refresh-btn.spinning { animation: spin 0.8s linear infinite; }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+    /* Rules CTA button (next to updated-chip) */
+    .updated-chip .rules-cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: rgba(130,56,186,0.18);
+      border: 1px solid rgba(130,56,186,0.4);
+      border-radius: var(--radius-full);
+      color: var(--color-on-primary-1);
+      cursor: pointer;
+      padding: 2px 8px;
+      font-size: 10px;
+      font-family: var(--font-family);
+      font-weight: var(--font-weight-semibold);
+      letter-spacing: 0.02em;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .updated-chip .rules-cta-btn:hover {
+      background: rgba(130,56,186,0.32);
+      border-color: rgba(130,56,186,0.7);
+      transform: translateY(-1px);
+    }
+    .updated-chip .rules-cta-btn:active {
+      transform: translateY(0);
+    }
+    .updated-chip .rules-cta-btn > span:first-child {
+      font-size: 11px;
+    }
+    .today-card { position: relative; }  /* enable absolute positioning for chip */
+
+    /* ═══════════════════════════════════════════════════
+       Tier banner · Old-badge guarantee chip
+    ═══════════════════════════════════════════════════ */
+    .tier-old-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      padding: 1px 6px;
+      margin-left: var(--spacing-2);
+      border-radius: var(--radius-xs);
+      background: rgba(255,209,0,0.15);
+      border: 1px solid rgba(255,209,0,0.40);
+      color: var(--tier-gold-color);
+      font-size: 10px;
+      font-weight: var(--font-weight-semibold);
+      vertical-align: middle;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Next-tier estimate hint (under progress bar)
+    ═══════════════════════════════════════════════════ */
+    .next-tier-hint {
+      margin-top: var(--spacing-3);
+      padding: var(--spacing-3) var(--spacing-4);
+      background: rgba(0,210,190,0.06);
+      border: 1px dashed rgba(0,210,190,0.30);
+      border-radius: var(--radius-s);
+      font-size: var(--font-body-small);
+      color: var(--color-on-primary-2);
+      line-height: 1.5;
+    }
+    .next-tier-hint .arrow {
+      color: var(--color-primary);
+      margin: 0 4px;
+    }
+    .next-tier-hint .tier-name-inline {
+      font-weight: var(--font-weight-semibold);
+    }
+    .next-tier-hint .max-rebate {
+      color: var(--tier-gold-color);
+      font-weight: var(--font-weight-semibold);
+    }
+    .next-tier-hint.at-max {
+      background: rgba(0,210,190,0.10);
+      border-color: rgba(0,210,190,0.5);
+      border-style: solid;
+      color: var(--color-primary);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Bonus row · Active banner + Pending progress
+    ═══════════════════════════════════════════════════ */
+    .bonus-row.active {
+      background: linear-gradient(90deg, rgba(21,234,72,0.12), rgba(21,234,72,0.04));
+      border-top: 1px solid rgba(21,234,72,0.35);
+    }
+    .bonus-row.active .bonus-text {
+      color: var(--color-preset-green);
+      font-weight: var(--font-weight-semibold);
+    }
+    .bonus-pending {
+      padding: var(--spacing-3) var(--spacing-5);
+      background: rgba(71,71,71,0.20);
+      border-top: 1px solid var(--color-outline-variant);
+    }
+    .bonus-pending-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: var(--font-body-small);
+      color: var(--color-on-primary-2);
+      margin-bottom: var(--spacing-1);
+    }
+    .bonus-pending-head .label { display: inline-flex; align-items: center; gap: var(--spacing-2); }
+    .bonus-pending-head .count { color: var(--color-primary); font-weight: var(--font-weight-semibold); font-variant-numeric: tabular-nums; }
+    .bonus-pending-hint {
+      font-size: 10px;
+      color: var(--color-on-primary-3);
+      margin-top: 4px;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Summary Card (Cumulative Overview)
+    ═══════════════════════════════════════════════════ */
+    .summary-card {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      background:
+        radial-gradient(ellipse 70% 80% at 50% 0%, rgba(0,210,190,0.08) 0%, transparent 70%),
+        var(--color-surface-container);
+      border: 1px solid var(--color-outline);
+      border-radius: var(--radius-l);
+      overflow: hidden;
+      animation: fade-up 0.4s 0.05s ease both;
+      box-shadow:
+        0 0 0 1px rgba(0,210,190,0.05),
+        0 8px 24px -8px rgba(25,25,25,0.4);
+    }
+    .summary-cell {
+      padding: var(--spacing-4) var(--spacing-3);
+      text-align: center;
+      border-right: 1px solid var(--color-outline-variant);
+    }
+    .summary-cell:last-child { border-right: none; }
+    .summary-cell-label {
+      font-size: 11px;
+      color: var(--color-on-primary-3);
+      letter-spacing: 0.03em;
+      margin-bottom: var(--spacing-2);
+      line-height: 1.2;
+    }
+    .summary-cell-value {
+      font-size: var(--font-title-medium);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-on-primary-1);
+      line-height: 1.1;
+      letter-spacing: 0.02em;
+      font-variant-numeric: tabular-nums;
+    }
+    .summary-cell-value.teal { color: var(--color-primary); }
+    .summary-cell-value .unit-small {
+      font-size: 10px;
+      color: var(--color-on-primary-3);
+      font-weight: var(--font-weight-regular);
+      margin-left: 2px;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Record card · Old-badge guarantee tag
+    ═══════════════════════════════════════════════════ */
+    .record-old-badge-tag {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-1);
+      padding: var(--spacing-2) var(--spacing-4);
+      background: rgba(255,209,0,0.08);
+      border-top: 1px solid rgba(255,209,0,0.18);
+      font-size: 11px;
+      color: var(--tier-gold-color);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Badge Modal (Anime-style: glow, sparkles, pink/yellow/purple)
+    ═══════════════════════════════════════════════════ */
+    .badge-modal-scrim {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(60,30,90,0.85) 0%, rgba(15,5,30,0.95) 70%);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing-5);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .badge-modal-scrim.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .badge-modal {
+      position: relative;
+      width: 100%;
+      max-width: 360px;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% 0%, rgba(246,65,141,0.25) 0%, transparent 65%),
+        radial-gradient(ellipse 100% 80% at 50% 50%, rgba(130,56,186,0.20) 0%, transparent 70%),
+        linear-gradient(180deg, #2a1855 0%, #1a0e3d 100%);
+      border-radius: var(--radius-xl);
+      padding: var(--spacing-7) var(--spacing-6) var(--spacing-6);
+      text-align: center;
+      overflow: hidden;
+      transform: scale(0.85) translateY(20px);
+      opacity: 0;
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+      border: 1px solid rgba(255,209,0,0.25);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.06),
+        0 24px 60px -12px rgba(0,0,0,0.7),
+        0 0 60px rgba(246,65,141,0.20);
+    }
+    .badge-modal-scrim.open .badge-modal {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+
+    /* Anime sparkles overlay */
+    .badge-modal::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(2px 2px at 18% 22%, #fff7c2 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 32% 38%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(2px 2px at 78% 18%, #ffcce6 0%, transparent 100%),
+        radial-gradient(1px 1px at 86% 35%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(2px 2px at 15% 70%, #cba8ff 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 88% 78%, #fff7c2 0%, transparent 100%),
+        radial-gradient(1px 1px at 50% 92%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 25% 88%, rgba(246,65,141,0.7) 0%, transparent 100%);
+      animation: sparkle-twinkle 2.8s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes sparkle-twinkle {
+      0%, 100% { opacity: 0.9; }
+      50%      { opacity: 0.4; }
+    }
+
+    .badge-modal-close {
+      position: absolute;
+      top: var(--spacing-3);
+      right: var(--spacing-3);
+      width: 32px; height: 32px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 50%;
+      color: var(--color-on-primary-1);
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .badge-modal-close:hover {
+      background: rgba(255,255,255,0.20);
+      transform: rotate(90deg);
+    }
+
+    .badge-modal-hero {
+      position: relative;
+      width: 160px;
+      height: 160px;
+      margin: 0 auto var(--spacing-5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    /* Outer rotating halo */
+    .badge-modal-hero::before {
+      content: '';
+      position: absolute;
+      inset: -20px;
+      border-radius: 50%;
+      background: conic-gradient(
+        from 0deg,
+        rgba(255,209,0,0.0) 0deg,
+        rgba(255,209,0,0.7) 60deg,
+        rgba(246,65,141,0.7) 120deg,
+        rgba(130,56,186,0.7) 180deg,
+        rgba(255,209,0,0.7) 240deg,
+        rgba(246,65,141,0.7) 300deg,
+        rgba(255,209,0,0.0) 360deg
+      );
+      filter: blur(18px);
+      animation: rotate-halo 6s linear infinite;
+      pointer-events: none;
+    }
+    /* Inner glow ring */
+    .badge-modal-hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,209,0,0.35) 0%, transparent 70%);
+      animation: pulse-glow 2.5s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes rotate-halo {
+      0%   { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.7; transform: scale(0.95); }
+      50%      { opacity: 1;   transform: scale(1.08); }
+    }
+    .badge-modal-hero img {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      z-index: 1;
+      filter: drop-shadow(0 0 20px rgba(255,209,0,0.6));
+      animation: badge-float 3s ease-in-out infinite;
+    }
+    .badge-modal-hero.locked img {
+      filter: grayscale(1) brightness(0.55) opacity(0.55);
+      animation: none;
+    }
+    .badge-modal-hero.locked::before,
+    .badge-modal-hero.locked::after {
+      opacity: 0.35;
+    }
+    @keyframes badge-float {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-6px); }
+    }
+    .badge-modal-fallback {
+      font-size: 96px;
+      filter: drop-shadow(0 0 20px rgba(255,209,0,0.6));
+    }
+
+    .badge-modal-title {
+      position: relative;
+      font-size: var(--font-headline-small);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-on-primary-1);
+      margin-bottom: var(--spacing-3);
+      letter-spacing: 0.04em;
+      text-shadow: 0 0 16px rgba(255,209,0,0.4);
+      z-index: 1;
+    }
+
+    .badge-modal-status {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      padding: var(--spacing-1) var(--spacing-4);
+      border-radius: var(--radius-full);
+      font-size: var(--font-body-small);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-5);
+      z-index: 1;
+    }
+    .badge-modal-status.earned {
+      background: rgba(21,234,72,0.15);
+      color: var(--color-preset-green);
+      border: 1px solid rgba(21,234,72,0.4);
+    }
+    .badge-modal-status.locked {
+      background: rgba(255,255,255,0.08);
+      color: var(--color-on-primary-2);
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+    .badge-modal-status.owned {
+      background: linear-gradient(180deg, rgba(255,209,0,0.30), rgba(255,165,0,0.15));
+      color: var(--tier-gold-color);
+      border: 1px solid rgba(255,209,0,0.65);
+      box-shadow: 0 0 14px rgba(255,209,0,0.30);
+    }
+
+    .badge-modal-section {
+      position: relative;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: var(--radius-m);
+      padding: var(--spacing-4) var(--spacing-5);
+      margin-bottom: var(--spacing-3);
+      text-align: left;
+      z-index: 1;
+    }
+    .badge-modal-section-label {
+      font-size: 11px;
+      color: var(--color-on-primary-3);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: var(--spacing-2);
+    }
+    .badge-modal-section-body {
+      font-size: var(--font-body-medium);
+      color: var(--color-on-primary-1);
+      line-height: 1.4;
+    }
+
+    .badge-modal-progress {
+      position: relative;
+      z-index: 1;
+    }
+    .badge-modal-progress-nums {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: var(--spacing-2);
+    }
+    .badge-modal-progress-nums .current {
+      font-size: var(--font-body-medium);
+      font-weight: var(--font-weight-semibold);
+      color: var(--tier-gold-color);
+    }
+    .badge-modal-progress-nums .threshold {
+      font-size: var(--font-body-small);
+      color: var(--color-on-primary-3);
+    }
+    .badge-modal-progress .progress-track {
+      height: 8px;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .badge-modal-progress .progress-fill {
+      background: linear-gradient(90deg, var(--tier-gold-color) 0%, var(--color-preset-pink) 100%);
+      box-shadow: 0 0 8px rgba(255,209,0,0.5);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Rules Modal (shares badge-modal styles + rules-specific)
+    ═══════════════════════════════════════════════════ */
+    .rules-modal {
+      max-width: 400px;
+      padding-top: var(--spacing-6);
+    }
+    .rules-modal-icon {
+      font-size: 32px;
+      text-align: center;
+      margin: 0 auto var(--spacing-3);
+      filter: drop-shadow(0 0 12px rgba(255,209,0,0.55));
+      animation: badge-breath 3s ease-in-out infinite;
+      position: relative;
+      z-index: 1;
+    }
+    .rules-modal-title {
+      font-size: var(--font-title-large);
+      margin-bottom: var(--spacing-5);
+    }
+    .rules-modal-section {
+      position: relative;
+      z-index: 1;
+      background: rgba(0,0,0,0.30);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: var(--radius-m);
+      padding: var(--spacing-4) var(--spacing-4);
+      margin-bottom: var(--spacing-3);
+      text-align: left;
+    }
+    .rules-modal-section-head {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      font-size: var(--font-body-medium);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-on-primary-1);
+      margin-bottom: var(--spacing-3);
+    }
+    .rules-modal-section-icon {
+      font-size: 16px;
+    }
+
+    /* Rules tier table inside modal */
+    .rules-modal-tier-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .rules-modal-tier-table th {
+      font-size: 10px;
+      color: var(--color-on-primary-3);
+      text-align: left;
+      padding: var(--spacing-1) var(--spacing-2);
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      font-weight: var(--font-weight-regular);
+      letter-spacing: 0.04em;
+    }
+    .rules-modal-tier-table td {
+      font-size: 12px;
+      color: var(--color-on-primary-2);
+      padding: var(--spacing-3) var(--spacing-2);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      vertical-align: middle;
+    }
+    .rules-modal-tier-table tr:last-child td { border-bottom: none; }
+    .rules-modal-tier-table .tier-cell {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      font-weight: var(--font-weight-semibold);
+    }
+    /* Highlight current tier row */
+    .rules-modal-tier-table tr.current-tier td {
+      background: linear-gradient(90deg, rgba(255,209,0,0.10), rgba(255,209,0,0.04));
+      border-top: 1px solid rgba(255,209,0,0.40);
+      border-bottom: 1px solid rgba(255,209,0,0.40);
+    }
+    .rules-modal-tier-table tr.current-tier td:first-child {
+      border-left: 3px solid var(--tier-gold-color);
+      padding-left: calc(var(--spacing-2) - 3px);
+    }
+    .current-tier-chip {
+      display: inline-block;
+      margin-left: var(--spacing-1);
+      padding: 1px 6px;
+      border-radius: var(--radius-full);
+      background: rgba(255,209,0,0.20);
+      border: 1px solid rgba(255,209,0,0.6);
+      color: var(--tier-gold-color);
+      font-size: 9px;
+      font-weight: var(--font-weight-semibold);
+      letter-spacing: 0.03em;
+      vertical-align: middle;
+    }
+
+    /* Bullet list inside section */
+    .rules-note-list .rules-note {
+      font-size: var(--font-body-small);
+      color: var(--color-on-primary-2);
+      line-height: 1.65;
+      padding: var(--spacing-2) 0;
+    }
+    .rules-note-list .rules-note + .rules-note {
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .rules-note-list .rules-highlight {
+      color: var(--tier-gold-color);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Slim Countdown Pill (replaces big 4-cell grid)
+    ═══════════════════════════════════════════════════ */
+    .countdown-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      padding: var(--spacing-2) var(--spacing-4);
+      background: rgba(0,0,0,0.30);
+      border: 1px solid rgba(0,210,190,0.35);
+      border-radius: var(--radius-full);
+      margin-bottom: var(--spacing-4);
+      font-size: var(--font-body-small);
+      color: var(--color-on-primary-1);
+      backdrop-filter: blur(4px);
+      box-shadow: 0 0 14px rgba(0,210,190,0.15);
+      position: relative;
+      z-index: 1;
+    }
+    .countdown-pill.ended {
+      border-color: rgba(255,255,255,0.20);
+      box-shadow: none;
+    }
+    .countdown-pill-icon {
+      font-size: 13px;
+    }
+    .countdown-pill-time {
+      font-variant-numeric: tabular-nums;
+      color: var(--color-primary);
+      font-weight: var(--font-weight-semibold);
+      letter-spacing: 0.04em;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       ⭐ HERO Rebate Card (Main conversion focal point)
+    ═══════════════════════════════════════════════════ */
+    .hero-card {
+      position: relative;
+      background:
+        radial-gradient(ellipse 100% 70% at 50% 0%, rgba(255,209,0,0.12) 0%, transparent 65%),
+        radial-gradient(ellipse 80% 60% at 50% 100%, rgba(130,56,186,0.18) 0%, transparent 60%),
+        linear-gradient(180deg, #2a1855 0%, #1c0d3e 100%);
+      border: 1px solid rgba(255,209,0,0.35);
+      border-radius: var(--radius-l);
+      padding: var(--spacing-5) var(--spacing-5) var(--spacing-5);
+      overflow: hidden;
+      animation: fade-up 0.4s ease both;
+      box-shadow:
+        0 0 0 1px rgba(255,209,0,0.05),
+        0 12px 32px -8px rgba(25,25,25,0.55),
+        0 0 40px rgba(255,209,0,0.10);
+    }
+    /* Sparkles behind Hero */
+    .hero-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(1.5px 1.5px at 12% 22%, rgba(255,209,0,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 28% 80%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 78% 28%, rgba(255,209,0,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 88% 70%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 55% 90%, rgba(255,209,0,0.6) 0%, transparent 100%);
+      animation: twinkle 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .hero-top-row {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-3);
+    }
+    .hero-eyebrow {
+      font-size: var(--font-body-small);
+      color: var(--color-on-primary-2);
+      letter-spacing: 0.04em;
+    }
+    .hero-action-row {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      font-size: 10px;
+      color: var(--color-on-primary-3);
+    }
+    .hero-action-row .updated-text { letter-spacing: 0.02em; }
+    .hero-action-row .refresh-btn,
+    .hero-action-row .rules-cta-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: var(--font-family);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .hero-action-row .refresh-btn {
+      color: var(--color-on-primary-3);
+      font-size: 12px;
+      transition: transform 0.5s ease, color 0.2s;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .hero-action-row .refresh-btn:hover { color: var(--color-primary); }
+    .hero-action-row .refresh-btn.spinning { animation: spin 0.8s linear infinite; }
+    .hero-action-row .rules-cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: rgba(130,56,186,0.18);
+      border: 1px solid rgba(130,56,186,0.4);
+      border-radius: var(--radius-full);
+      color: var(--color-on-primary-1);
+      padding: 2px 8px;
+      font-size: 10px;
+      font-weight: var(--font-weight-semibold);
+      letter-spacing: 0.02em;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    }
+    .hero-action-row .rules-cta-btn:hover {
+      background: rgba(130,56,186,0.32);
+      border-color: rgba(130,56,186,0.7);
+      transform: translateY(-1px);
+    }
+    .hero-action-row .chip-sep { color: rgba(255,255,255,0.25); }
+
+    .hero-amount-wrap {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: var(--spacing-3) 0 var(--spacing-4);
+    }
+    .hero-amount {
+      font-size: 64px;
+      font-weight: var(--font-weight-semibold);
+      line-height: 1.0;
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+      background: linear-gradient(180deg, #fff4a0 0%, #ffd100 45%, #ff9d00 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 4px 16px rgba(255,209,0,0.45));
+      display: inline-flex;
+      align-items: baseline;
+      gap: var(--spacing-2);
+    }
+    .hero-amount .diamond-icon {
+      font-size: 28px;
+      -webkit-text-fill-color: initial;
+      background: none;
+      filter: drop-shadow(0 0 8px rgba(0,210,190,0.7));
+    }
+    .hero-amount.capped::after {
+      content: ' ▲';
+      font-size: 16px;
+      color: var(--tier-gold-color);
+      -webkit-text-fill-color: initial;
+      background: none;
+    }
+    .hero-cap-note {
+      display: inline-block;
+      margin-top: var(--spacing-2);
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      background: rgba(255,209,0,0.15);
+      border: 1px solid rgba(255,209,0,0.4);
+      color: var(--tier-gold-color);
+      font-weight: var(--font-weight-semibold);
+      letter-spacing: 0.04em;
+    }
+
+    /* Tier strip inside Hero */
+    .hero-tier-row {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+      padding: var(--spacing-3) var(--spacing-4);
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: var(--radius-m);
+      margin-bottom: var(--spacing-3);
+    }
+    .hero-tier-icon-wrap {
+      width: 36px; height: 36px;
+      border-radius: var(--radius-s);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .hero-tier-icon-wrap.bronze  { background: rgba(255,114,0,0.18); color: var(--tier-bronze-color); box-shadow: 0 0 14px var(--tier-bronze-glow); }
+    .hero-tier-icon-wrap.silver  { background: rgba(200,200,200,0.10); color: var(--tier-silver-color); box-shadow: 0 0 14px var(--tier-silver-glow); }
+    .hero-tier-icon-wrap.gold    { background: rgba(255,209,0,0.15); color: var(--tier-gold-color); box-shadow: 0 0 14px var(--tier-gold-glow); }
+    .hero-tier-icon-wrap.diamond { background: rgba(0,210,190,0.15); color: var(--tier-diamond-color); box-shadow: 0 0 14px var(--tier-diamond-glow); }
+    .hero-tier-icon-wrap.none    { background: rgba(255,255,255,0.05); color: var(--color-on-primary-3); }
+
+    .hero-tier-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .hero-tier-info .name-row {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      font-size: var(--font-body-medium);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: 2px;
+    }
+    .hero-tier-info .rate-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 1px 6px;
+      border-radius: var(--radius-xs);
+      background: rgba(0,210,190,0.15);
+      border: 1px solid rgba(0,210,190,0.4);
+      color: var(--color-primary);
+      font-size: 11px;
+      font-weight: var(--font-weight-semibold);
+      letter-spacing: 0.02em;
+    }
+    .hero-tier-info .bonus-tag {
+      display: inline-flex;
+      padding: 1px 6px;
+      border-radius: var(--radius-xs);
+      background: rgba(21,234,72,0.15);
+      border: 1px solid rgba(21,234,72,0.4);
+      color: var(--color-preset-green);
+      font-size: 10px;
+      font-weight: var(--font-weight-semibold);
+    }
+    .hero-tier-info .gap-line {
+      font-size: 11px;
+      color: var(--color-on-primary-2);
+      line-height: 1.4;
+    }
+    .hero-tier-info .gap-amount {
+      color: var(--tier-gold-color);
+      font-weight: var(--font-weight-semibold);
+    }
+    .hero-tier-info .gap-line .max-rebate {
+      color: var(--color-primary);
+      font-weight: var(--font-weight-semibold);
+    }
+    .hero-tier-old-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      padding: 1px 6px;
+      border-radius: var(--radius-xs);
+      background: rgba(255,209,0,0.15);
+      border: 1px solid rgba(255,209,0,0.40);
+      color: var(--tier-gold-color);
+      font-size: 10px;
+      font-weight: var(--font-weight-semibold);
+    }
+
+    /* Progress bar in Hero */
+    .hero-progress {
+      position: relative;
+      z-index: 1;
+      margin-bottom: var(--spacing-4);
+    }
+    .hero-progress .progress-track {
+      height: 8px;
+      background: rgba(0,0,0,0.4);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .hero-progress .progress-fill {
+      height: 100%;
+      border-radius: var(--radius-full);
+      transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    .hero-progress .progress-fill.bronze  { background: linear-gradient(90deg, var(--tier-bronze-color), #ffa86a); }
+    .hero-progress .progress-fill.silver  { background: linear-gradient(90deg, var(--tier-silver-color), #ffffff); }
+    .hero-progress .progress-fill.gold    { background: linear-gradient(90deg, var(--tier-gold-color), #fff4a0); }
+    .hero-progress .progress-fill.diamond { background: linear-gradient(90deg, var(--tier-diamond-color), #6fffd5); }
+    .hero-progress .progress-fill.maxed   { background: linear-gradient(90deg, var(--tier-diamond-color), var(--tier-gold-color)); }
+    .hero-progress .progress-nums {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--color-on-primary-3);
+      margin-top: var(--spacing-1);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Bonus banner inside Hero */
+    .hero-bonus-banner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      padding: var(--spacing-2) var(--spacing-3);
+      background: linear-gradient(90deg, rgba(21,234,72,0.18), rgba(21,234,72,0.06));
+      border: 1px solid rgba(21,234,72,0.35);
+      border-radius: var(--radius-s);
+      margin-bottom: var(--spacing-3);
+      font-size: 12px;
+      color: var(--color-preset-green);
+      font-weight: var(--font-weight-semibold);
+    }
+    .hero-bonus-pending {
+      position: relative;
+      z-index: 1;
+      padding: var(--spacing-2) var(--spacing-3);
+      background: rgba(71,71,71,0.18);
+      border: 1px dashed rgba(255,255,255,0.12);
+      border-radius: var(--radius-s);
+      margin-bottom: var(--spacing-3);
+      font-size: 11px;
+      color: var(--color-on-primary-3);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .hero-bonus-pending .count { color: var(--color-primary); font-weight: var(--font-weight-semibold); font-variant-numeric: tabular-nums; }
+
+    /* Hero CTA button (inline, primary) */
+    .hero-cta-btn {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: var(--spacing-3) var(--spacing-5);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0) 50%),
+        linear-gradient(135deg, #ffa500 0%, #ffd100 50%, #ffa500 100%);
+      border: 1.5px solid rgba(255,255,255,0.45);
+      border-radius: var(--radius-full);
+      color: #4a2a00;
+      font-size: var(--font-body-large);
+      font-weight: var(--font-weight-semibold);
+      letter-spacing: 0.06em;
+      text-decoration: none;
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.10),
+        0 8px 22px rgba(255,165,0,0.50),
+        0 0 28px rgba(255,209,0,0.45),
+        inset 0 1px 0 rgba(255,255,255,0.50);
+      transition: transform 0.18s ease, box-shadow 0.2s ease;
+      animation: hero-cta-pulse 2.2s ease-in-out infinite;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .hero-cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.10),
+        0 12px 28px rgba(255,165,0,0.65),
+        0 0 40px rgba(255,209,0,0.65),
+        inset 0 1px 0 rgba(255,255,255,0.55);
+    }
+    .hero-cta-btn:active { transform: translateY(0); transition-duration: 0.08s; }
+    @keyframes hero-cta-pulse {
+      0%, 100% { box-shadow: 0 0 0 1px rgba(0,0,0,0.10), 0 8px 22px rgba(255,165,0,0.50), 0 0 28px rgba(255,209,0,0.45), inset 0 1px 0 rgba(255,255,255,0.50); }
+      50%      { box-shadow: 0 0 0 1px rgba(0,0,0,0.10), 0 10px 26px rgba(255,165,0,0.65), 0 0 44px rgba(255,209,0,0.65), inset 0 1px 0 rgba(255,255,255,0.55); }
+    }
+
+    /* ═══════════════════════════════════════════════════
+       No-bet state — empty card for users without any bet today
+    ═══════════════════════════════════════════════════ */
+    .hero-card.no-bet {
+      text-align: center;
+      padding: var(--spacing-7) var(--spacing-5);
+      border-style: dashed;
+    }
+    .hero-no-bet-icon {
+      font-size: 56px;
+      margin-bottom: var(--spacing-3);
+      filter: drop-shadow(0 0 14px rgba(255,209,0,0.45));
+      animation: gamepad-bob 2.6s ease-in-out infinite;
+      display: inline-block;
+    }
+    @keyframes gamepad-bob {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-6px); }
+    }
+    .hero-no-bet-title {
+      font-size: var(--font-title-medium);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-on-primary-1);
+      margin-bottom: var(--spacing-2);
+      letter-spacing: 0.02em;
+    }
+    .hero-no-bet-sub {
+      font-size: var(--font-body-small);
+      color: var(--color-on-primary-3);
+      margin-bottom: var(--spacing-4);
+      line-height: 1.5;
+    }
+
+    /* Rules link above CTA (subtle text-button style) */
+    .hero-no-bet-rules-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      padding: var(--spacing-2) var(--spacing-3);
+      margin-bottom: var(--spacing-4);
+      color: var(--color-on-primary-2);
+      font-size: var(--font-body-small);
+      font-family: var(--font-family);
+      font-weight: var(--font-weight-semibold);
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      text-decoration: underline;
+      text-decoration-color: rgba(255,255,255,0.25);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+      transition: color 0.2s, text-decoration-color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .hero-no-bet-rules-link:hover {
+      color: var(--color-primary);
+      text-decoration-color: rgba(0,210,190,0.6);
+    }
+    .hero-no-bet-rules-link:active { opacity: 0.7; }
+
+    /* Big CTA — 100% width, larger padding, strong breathing + shimmer sweep */
+    .hero-cta-btn.no-bet-cta-big {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      max-width: 100%;
+      padding: var(--spacing-4) var(--spacing-5);
+      font-size: var(--font-title-small);
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-2);
+      letter-spacing: 0.08em;
+      animation: hero-cta-pulse-strong 1.8s ease-in-out infinite;
+    }
+    /* Shimmer sweep — diagonal white gleam moving across button */
+    .hero-cta-btn.no-bet-cta-big .hero-cta-shimmer {
+      position: absolute;
+      top: 0;
+      left: -60%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(
+        100deg,
+        transparent 0%,
+        rgba(255,255,255,0.0) 30%,
+        rgba(255,255,255,0.45) 50%,
+        rgba(255,255,255,0.0) 70%,
+        transparent 100%
+      );
+      transform: skewX(-22deg);
+      animation: cta-shimmer-sweep 2.6s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .hero-cta-btn.no-bet-cta-big .cta-main-text {
+      position: relative;
+      z-index: 1;  /* keep text above shimmer */
+    }
+    @keyframes cta-shimmer-sweep {
+      0%   { left: -60%; }
+      60%  { left: 120%; }
+      100% { left: 120%; }
+    }
+    /* Stronger breathing for "go play" CTA */
+    @keyframes hero-cta-pulse-strong {
+      0%, 100% {
+        box-shadow:
+          0 0 0 1px rgba(0,0,0,0.10),
+          0 8px 22px rgba(255,165,0,0.55),
+          0 0 32px rgba(255,209,0,0.50),
+          inset 0 1px 0 rgba(255,255,255,0.55);
+        transform: scale(1);
+      }
+      50% {
+        box-shadow:
+          0 0 0 1px rgba(0,0,0,0.10),
+          0 12px 30px rgba(255,165,0,0.75),
+          0 0 52px rgba(255,209,0,0.75),
+          inset 0 1px 0 rgba(255,255,255,0.60);
+        transform: scale(1.015);
+      }
+    }
+    /* When user hovers, freeze the breathing on the bigger state */
+    .hero-cta-btn.no-bet-cta-big:hover {
+      animation-play-state: paused;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       📊 Status Card (secondary three-cell)
+    ═══════════════════════════════════════════════════ */
+    .status-card {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      background: var(--color-surface-container);
+      border: 1px solid var(--color-outline);
+      border-radius: var(--radius-l);
+      overflow: hidden;
+      animation: fade-up 0.4s 0.05s ease both;
+    }
+    .status-cell {
+      padding: var(--spacing-4) var(--spacing-2);
+      text-align: center;
+      border-right: 1px solid var(--color-outline-variant);
+    }
+    .status-cell:last-child { border-right: none; }
+    .status-cell-label {
+      font-size: 11px;
+      color: var(--color-on-primary-3);
+      margin-bottom: var(--spacing-2);
+      line-height: 1.2;
+      letter-spacing: 0.03em;
+    }
+    .status-cell-value {
+      font-size: var(--font-title-small);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-on-primary-1);
+      line-height: 1.1;
+      font-variant-numeric: tabular-nums;
+    }
+    .status-cell-value .unit-small {
+      font-size: 10px;
+      color: var(--color-on-primary-3);
+      font-weight: var(--font-weight-regular);
+      margin-left: 2px;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       🏆 Achievement Card (Badge + Cumulative merged)
+    ═══════════════════════════════════════════════════ */
+    .achievement-card {
+      background:
+        radial-gradient(ellipse 60% 60% at 0% 0%, rgba(255,209,0,0.10) 0%, transparent 60%),
+        var(--color-surface-container);
+      border: 1px solid var(--color-outline);
+      border-radius: var(--radius-l);
+      overflow: hidden;
+      animation: fade-up 0.4s 0.1s ease both;
+      box-shadow:
+        0 0 0 1px rgba(255,209,0,0.05),
+        0 8px 24px -8px rgba(25,25,25,0.4);
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .achievement-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255,209,0,0.4);
+      box-shadow:
+        0 0 0 1px rgba(255,209,0,0.15),
+        0 12px 28px -8px rgba(25,25,25,0.55);
+    }
+    .achievement-card:active { transform: translateY(0); transition-duration: 0.1s; }
+    .achievement-head {
+      padding: var(--spacing-5) var(--spacing-5) var(--spacing-3);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-4);
+    }
+    .achievement-badge-wrap {
+      width: 56px; height: 56px;
+      flex-shrink: 0;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .achievement-badge-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 0 10px rgba(255,209,0,0.55));
+      animation: badge-breath 3s ease-in-out infinite;
+      transition: transform 0.35s ease;
+    }
+    .achievement-card:hover .achievement-badge-wrap img { transform: scale(1.06); }
+    .achievement-badge-fallback {
+      font-size: 36px;
+      filter: drop-shadow(0 0 8px var(--tier-gold-glow));
+    }
+    .achievement-text {
+      flex: 1;
+      min-width: 0;
+    }
+    .achievement-name {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      font-size: var(--font-body-medium);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-on-primary-1);
+      margin-bottom: 2px;
+      flex-wrap: wrap;
+    }
+    .achievement-status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      padding: 1px 8px;
+      border-radius: var(--radius-full);
+      font-size: 10px;
+      font-weight: var(--font-weight-semibold);
+      letter-spacing: 0.03em;
+    }
+    .achievement-status-chip.owned {
+      background: linear-gradient(180deg, rgba(255,209,0,0.30), rgba(255,165,0,0.15));
+      border: 1px solid rgba(255,209,0,0.65);
+      color: var(--tier-gold-color);
+      box-shadow: 0 0 10px rgba(255,209,0,0.30);
+    }
+    .achievement-status-chip.earned {
+      background: rgba(21,234,72,0.18);
+      border: 1px solid rgba(21,234,72,0.45);
+      color: var(--color-preset-green);
+    }
+    .achievement-status-chip.locked {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: var(--color-on-primary-3);
+    }
+    /* "Already owned · no need to reach again" subtle tag next to progress label */
+    .achievement-not-required {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      margin-left: var(--spacing-2);
+      padding: 1px 6px;
+      border-radius: var(--radius-xs);
+      background: rgba(255,209,0,0.10);
+      border: 1px solid rgba(255,209,0,0.30);
+      color: var(--tier-gold-color);
+      font-size: 9px;
+      font-weight: var(--font-weight-semibold);
+      letter-spacing: 0.04em;
+      vertical-align: middle;
+    }
+    .achievement-sub.owned {
+      color: var(--tier-gold-color);
+    }
+    .achievement-sub.earned {
+      color: var(--color-preset-green);
+      font-weight: var(--font-weight-semibold);
+    }
+    .achievement-sub {
+      font-size: var(--font-body-small);
+      color: var(--color-on-primary-3);
+    }
+    .achievement-arrow {
+      flex-shrink: 0;
+      color: var(--color-on-primary-3);
+      font-size: 18px;
+      opacity: 0.5;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+    .achievement-card:hover .achievement-arrow {
+      transform: translateX(3px);
+      opacity: 0.9;
+    }
+    /* Stats inside achievement (cumulative bet progress + total rebate) */
+    .achievement-stats {
+      padding: var(--spacing-3) var(--spacing-5) var(--spacing-5);
+      border-top: 1px solid var(--color-outline-variant);
+    }
+    .achievement-stat-row {
+      margin-top: var(--spacing-4);
+    }
+    .achievement-stat-row:first-child { margin-top: 0; }
+    .achievement-stat-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: var(--spacing-2);
+    }
+    .achievement-stat-label {
+      font-size: 11px;
+      color: var(--color-on-primary-3);
+      letter-spacing: 0.03em;
+    }
+    .achievement-stat-value {
+      font-size: var(--font-body-medium);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-on-primary-1);
+      font-variant-numeric: tabular-nums;
+    }
+    .achievement-stat-value.teal {
+      color: var(--color-primary);
+    }
+    .achievement-stat-value.gold {
+      color: var(--tier-gold-color);
+    }
+    .achievement-progress-track {
+      height: 8px;
+      background: var(--color-surface-variant);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+    .achievement-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--tier-gold-color), #fff4a0);
+      transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+      border-radius: var(--radius-full);
+      box-shadow: 0 0 8px rgba(255,209,0,0.45);
+    }
+    .achievement-progress-fill.maxed {
+      background: linear-gradient(90deg, var(--color-preset-green), #6fffd5);
+      box-shadow: 0 0 8px rgba(21,234,72,0.45);
+    }
+    .achievement-divider {
+      height: 1px;
+      background: var(--color-outline-variant);
+      margin: var(--spacing-4) 0;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Compact tier table (shared by no-bet Tier Preview)
+    ═══════════════════════════════════════════════════ */
+    /* Compact tier table for no-bet preview */
+    .tier-mini-row {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      padding: var(--spacing-2) 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      font-size: var(--font-body-small);
+    }
+    .tier-mini-row:last-child { border-bottom: none; }
+    .tier-mini-row .tier-mini-icon {
+      width: 24px; height: 24px;
+      border-radius: var(--radius-s);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .tier-mini-row .tier-mini-icon.bronze  { background: rgba(255,114,0,0.18); }
+    .tier-mini-row .tier-mini-icon.silver  { background: rgba(200,200,200,0.10); }
+    .tier-mini-row .tier-mini-icon.gold    { background: rgba(255,209,0,0.15); }
+    .tier-mini-row .tier-mini-icon.diamond { background: rgba(0,210,190,0.15); }
+    .tier-mini-row .tier-mini-name {
+      min-width: 50px;
+      font-weight: var(--font-weight-semibold);
+      flex-shrink: 0;
+    }
+    .tier-mini-row .tier-mini-name.bronze  { color: var(--tier-bronze-color); }
+    .tier-mini-row .tier-mini-name.silver  { color: var(--tier-silver-color); }
+    .tier-mini-row .tier-mini-name.gold    { color: var(--tier-gold-color); }
+    .tier-mini-row .tier-mini-name.diamond { color: var(--tier-diamond-color); }
+    .tier-mini-row .tier-mini-detail {
+      flex: 1;
+      color: var(--color-on-primary-2);
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      font-size: 11px;
+    }
+    .tier-mini-row .tier-mini-detail .rebate-num {
+      color: var(--color-primary);
+      font-weight: var(--font-weight-semibold);
+      margin-left: 2px;
+    }
+    .tier-mini-row .tier-mini-badge-mark {
+      display: inline-block;
+      margin-left: var(--spacing-1);
+      padding: 0 5px;
+      border-radius: var(--radius-xs);
+      background: rgba(255,209,0,0.18);
+      border: 1px solid rgba(255,209,0,0.45);
+      color: var(--tier-gold-color);
+      font-size: 9px;
+      font-weight: var(--font-weight-semibold);
+      vertical-align: middle;
+      letter-spacing: 0.04em;
+    }
+    .tier-mini-cap-note {
+      font-size: 10px;
+      color: var(--color-on-primary-3);
+      text-align: center;
+      margin-top: var(--spacing-2);
+      letter-spacing: 0.03em;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       U0 Tier Preview (inside no-bet state)
+    ═══════════════════════════════════════════════════ */
+    .hero-tier-preview {
+      background: rgba(0,0,0,0.30);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius-m);
+      padding: var(--spacing-4);
+      margin-bottom: var(--spacing-4);
+      text-align: left;
+    }
+    .hero-tier-preview-title {
+      font-size: var(--font-body-small);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-on-primary-1);
+      margin-bottom: var(--spacing-3);
+      text-align: center;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       T2 Final Summary (event ended)
+    ═══════════════════════════════════════════════════ */
+    .hero-card.final-summary {
+      position: relative;
+      text-align: center;
+      padding: var(--spacing-6) var(--spacing-5);
+      background:
+        radial-gradient(ellipse 100% 70% at 50% 0%, rgba(255,209,0,0.10) 0%, transparent 65%),
+        linear-gradient(180deg, #1f1235 0%, #150925 100%);
+      border: 1px solid rgba(255,209,0,0.25);
+    }
+    .final-summary-title {
+      font-size: var(--font-title-medium);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-on-primary-1);
+      margin-bottom: var(--spacing-5);
+      letter-spacing: 0.04em;
+    }
+    .final-summary-stat {
+      margin-bottom: var(--spacing-4);
+    }
+    .final-summary-stat:last-of-type { margin-bottom: var(--spacing-5); }
+    .final-summary-stat-label {
+      font-size: 11px;
+      color: var(--color-on-primary-3);
+      letter-spacing: 0.04em;
+      margin-bottom: var(--spacing-1);
+    }
+    .final-summary-stat-value {
+      font-size: var(--font-title-large);
+      font-weight: var(--font-weight-semibold);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.01em;
+    }
+    .final-summary-stat-value.bet  { color: var(--color-on-primary-1); }
+    .final-summary-stat-value.rebate {
+      background: linear-gradient(180deg, #fff4a0 0%, #ffd100 45%, #ff9d00 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 10px rgba(255,209,0,0.35));
+    }
+    .final-summary-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing-3) var(--spacing-5);
+      border-radius: var(--radius-full);
+      font-size: var(--font-body-medium);
+      font-weight: var(--font-weight-semibold);
+      letter-spacing: 0.03em;
+      margin-bottom: var(--spacing-4);
+    }
+    .final-summary-badge.earned {
+      background: linear-gradient(180deg, rgba(255,209,0,0.30), rgba(255,165,0,0.15));
+      border: 1px solid rgba(255,209,0,0.65);
+      color: var(--tier-gold-color);
+      box-shadow: 0 0 18px rgba(255,209,0,0.30);
+    }
+    .final-summary-badge.missed {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: var(--color-on-primary-3);
+    }
+    .final-summary-closing {
+      font-size: var(--font-body-small);
+      color: var(--color-on-primary-3);
+      margin-top: var(--spacing-4);
+      padding-top: var(--spacing-4);
+      border-top: 1px solid rgba(255,255,255,0.08);
+      line-height: 1.6;
+    }
+    /* Final-summary rules CTA (text-link inside ended-state card) */
+    .final-summary-rules-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-2);
+      width: 100%;
+      padding: var(--spacing-3) var(--spacing-5);
+      background: rgba(130,56,186,0.18);
+      border: 1px solid rgba(130,56,186,0.45);
+      border-radius: var(--radius-full);
+      color: var(--color-on-primary-1);
+      font-size: var(--font-body-medium);
+      font-weight: var(--font-weight-semibold);
+      font-family: var(--font-family);
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .final-summary-rules-cta:hover {
+      background: rgba(130,56,186,0.32);
+      border-color: rgba(130,56,186,0.7);
+      transform: translateY(-1px);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Cap-reached payout hint (inside Hero card)
+    ═══════════════════════════════════════════════════ */
+    .hero-cap-payout-note {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-2);
+      padding: var(--spacing-2) var(--spacing-3);
+      background: linear-gradient(90deg, rgba(255,209,0,0.18), rgba(255,209,0,0.06));
+      border: 1px solid rgba(255,209,0,0.35);
+      border-radius: var(--radius-s);
+      margin-bottom: var(--spacing-3);
+      font-size: 12px;
+      color: var(--tier-gold-color);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    /* Body scroll lock helper */
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Fixed Bottom CTA (Play Now)
+    ═══════════════════════════════════════════════════ */
+    .cta-fixed {
+      position: fixed;
+      bottom: var(--spacing-4);
+      left: var(--spacing-5);
+      right: var(--spacing-5);
+      z-index: 998;
+      max-width: var(--container-standard);
+      margin: 0 auto;
+      pointer-events: none;  /* container is transparent, only inner link is clickable */
+    }
+    /* Hide bottom CTA when activity is prelaunch or ended */
+    body.hide-fixed-cta .cta-fixed {
+      display: none;
+    }
+    body.hide-fixed-cta {
+      padding-bottom: var(--spacing-7) !important;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Connecting hint (inside skeleton, shown when handshake slow)
+    ═══════════════════════════════════════════════════ */
+    .connecting-hint {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-2);
+      margin-top: var(--spacing-4);
+      padding: var(--spacing-2) var(--spacing-3);
+      font-size: 11px;
+      color: var(--color-on-primary-3);
+      letter-spacing: 0.04em;
+      animation: fade-in 0.3s ease;
+    }
+    .connecting-hint.urgent {
+      color: var(--color-preset-gold);
+    }
+    .connecting-dot {
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      animation: connecting-pulse 1.2s ease-in-out infinite;
+    }
+    .connecting-hint.urgent .connecting-dot {
+      background: var(--color-preset-gold);
+    }
+    @keyframes connecting-pulse {
+      0%, 100% { opacity: 0.4; transform: scale(1); }
+      50%      { opacity: 1; transform: scale(1.3); }
+    }
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Connection-failed card (after 30s handshake timeout)
+    ═══════════════════════════════════════════════════ */
+    .hero-card.connection-failed {
+      text-align: center;
+      padding: var(--spacing-7) var(--spacing-5);
+      border-style: dashed;
+      border-color: rgba(255,165,0,0.3);
+    }
+    .connection-failed-icon {
+      font-size: 48px;
+      margin-bottom: var(--spacing-3);
+      filter: drop-shadow(0 0 12px rgba(255,165,0,0.4));
+    }
+    .connection-failed-title {
+      font-size: var(--font-title-medium);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-on-primary-1);
+      margin-bottom: var(--spacing-2);
+      letter-spacing: 0.02em;
+    }
+    .connection-failed-sub {
+      font-size: var(--font-body-small);
+      color: var(--color-on-primary-3);
+      margin-bottom: var(--spacing-5);
+      line-height: 1.5;
+    }
+    .connection-retry-btn {
+      display: block;
+      width: 100%;
+      max-width: 280px;
+      margin: 0 auto var(--spacing-3);
+      padding: var(--spacing-3) var(--spacing-5);
+      background: linear-gradient(135deg, #ffa500 0%, #ffd100 50%, #ffa500 100%);
+      border: 1.5px solid rgba(255,255,255,0.45);
+      border-radius: var(--radius-full);
+      color: #4a2a00;
+      font-size: var(--font-body-medium);
+      font-weight: var(--font-weight-semibold);
+      font-family: var(--font-family);
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.10),
+        0 6px 18px rgba(255,165,0,0.40),
+        inset 0 1px 0 rgba(255,255,255,0.50);
+      transition: transform 0.18s ease, box-shadow 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .connection-retry-btn:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.10),
+        0 10px 24px rgba(255,165,0,0.55),
+        inset 0 1px 0 rgba(255,255,255,0.55);
+    }
+    .connection-retry-btn:active { transform: translateY(0); }
+    .connection-rules-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      padding: var(--spacing-2) var(--spacing-3);
+      color: var(--color-on-primary-2);
+      font-size: var(--font-body-small);
+      font-family: var(--font-family);
+      font-weight: var(--font-weight-semibold);
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      text-decoration: underline;
+      text-decoration-color: rgba(255,255,255,0.25);
+      text-underline-offset: 3px;
+      transition: color 0.2s;
+    }
+    .connection-rules-btn:hover { color: var(--color-primary); }
+    .cta-fixed a {
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-2);
+      width: 100%;
+      padding: var(--spacing-4) var(--spacing-6);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 50%),
+        linear-gradient(135deg, #8238BA 0%, #B85FE0 50%, #00D2BE 100%);
+      background-size: 100% 100%, 200% 100%;
+      border: 1.5px solid rgba(255,255,255,0.40);
+      border-radius: var(--radius-full);
+      color: #fff;
+      font-size: var(--font-title-small);
+      font-weight: var(--font-weight-semibold);
+      letter-spacing: 0.06em;
+      text-decoration: none;
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.10),
+        0 8px 24px rgba(130,56,186,0.55),
+        0 0 32px rgba(0,210,190,0.35),
+        inset 0 1px 0 rgba(255,255,255,0.30);
+      transition: transform 0.18s ease, background-position 0.5s ease, box-shadow 0.2s ease;
+      animation: cta-pulse 2.4s ease-in-out infinite;
+      backdrop-filter: blur(2px);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .cta-fixed a:hover {
+      transform: translateY(-2px);
+      background-position: 0 0, 100% 0;
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.10),
+        0 12px 32px rgba(130,56,186,0.7),
+        0 0 48px rgba(0,210,190,0.55),
+        inset 0 1px 0 rgba(255,255,255,0.35);
+    }
+    .cta-fixed a:active {
+      transform: translateY(0);
+      transition-duration: 0.08s;
+    }
+    .cta-fixed .cta-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.22);
+      font-size: 11px;
+      padding-left: 2px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.40);
+    }
+    @keyframes cta-pulse {
+      0%, 100% {
+        box-shadow:
+          0 0 0 1px rgba(0,0,0,0.10),
+          0 8px 24px rgba(130,56,186,0.55),
+          0 0 32px rgba(0,210,190,0.35),
+          inset 0 1px 0 rgba(255,255,255,0.30);
+      }
+      50% {
+        box-shadow:
+          0 0 0 1px rgba(0,0,0,0.10),
+          0 8px 28px rgba(130,56,186,0.75),
+          0 0 50px rgba(0,210,190,0.55),
+          inset 0 1px 0 rgba(255,255,255,0.30);
+      }
+    }
+
+    /* Body padding to prevent content being hidden behind fixed CTA */
+    body {
+      padding-bottom: calc(var(--spacing-10) + 32px) !important;
+    }
+    @media (max-width: 767px) {
+      body {
+        padding-bottom: calc(var(--spacing-10) + 40px) !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Language Switcher -->
+  <div class="lang-switcher" id="lang-switcher">
+    <button class="lang-btn active" data-lang="zh-TW" onclick="setLang('zh-TW')">繁中</button>
+    <button class="lang-btn"        data-lang="zh-CN" onclick="setLang('zh-CN')">简中</button>
+    <button class="lang-btn"        data-lang="en"    onclick="setLang('en')">EN</button>
+    <button class="lang-btn"        data-lang="ja"    onclick="setLang('ja')">日</button>
+  </div>
+
+  <!-- Header (slim) -->
+  <header class="header">
+    <div class="header-deco">
+      <!-- Planets -->
+      <div class="deco-planet-saturn">
+        <div class="ball"></div>
+        <div class="ring"></div>
+      </div>
+      <div class="deco-planet-moon"></div>
+      <!-- Diamonds -->
+      <div class="deco-diamond d1"></div>
+      <div class="deco-diamond d2"></div>
+      <div class="deco-diamond d3"></div>
+      <div class="deco-diamond d4"></div>
+      <div class="deco-diamond d5"></div>
+      <!-- Coins -->
+      <div class="deco-coin c1"></div>
+      <div class="deco-coin c2"></div>
+    </div>
+    <div class="day-badge">
+      <span class="day-badge-dot"></span>
+      <span id="day-label">Day — / 3</span>
+    </div>
+    <h1 class="activity-title" id="header-title">博弈遊戲王</h1>
+    <p class="activity-dates">2026.05.27 — 2026.05.29 <span class="activity-tz">(UTC+8)</span></p>
+
+    <!-- Slim countdown pill (replaces the big 4-cell grid) -->
+    <div class="countdown-pill" id="countdown-pill">
+      <span class="countdown-pill-icon" aria-hidden="true">⏰</span>
+      <span id="countdown-pill-label">距活動結束</span>
+      <span class="countdown-pill-time" id="countdown-pill-time">--</span>
+    </div>
+
+    <div class="games-row">
+      <span class="game-tag">
+        <img class="game-tag-img" id="game1-img" alt="" loading="lazy"
+             onerror="this.style.display='none'">
+        <span id="game1-tag">龍乳鬥白虎</span>
+      </span>
+      <span class="game-tag">
+        <img class="game-tag-img" id="game2-img" alt="" loading="lazy"
+             onerror="this.style.display='none'">
+        <span id="game2-tag">一柱擎天</span>
+      </span>
+      <span class="game-tag">
+        <img class="game-tag-img" id="game3-img" alt="" loading="lazy"
+             onerror="this.style.display='none'">
+        <span id="game3-tag">金射狂風</span>
+      </span>
+    </div>
+  </header>
+
+  <div class="page-content">
+
+    <!-- ── ⭐ HERO Section (主轉化點) ── -->
+    <div class="section" id="section-hero">
+      <!-- Skeleton -->
+      <div class="hero-skeleton skeleton-card" id="skeleton-hero">
+        <div class="skel-line short" style="margin: 0 auto var(--spacing-3);"></div>
+        <div class="skel-line wide" style="height: 56px; margin: 0 auto var(--spacing-4); max-width: 60%;"></div>
+        <div class="skel-line medium" style="margin: 0 auto;"></div>
+        <!-- Soft connecting hint (shown when handshake takes longer than expected) -->
+        <div class="connecting-hint hidden" id="connecting-hint">
+          <span class="connecting-dot"></span>
+          <span id="connecting-hint-text">正在連線…</span>
+        </div>
+      </div>
+
+      <!-- Connection failed (after 30s timeout) — graceful degradation -->
+      <div class="hero-card connection-failed hidden" id="hero-connection-failed">
+        <div class="connection-failed-icon">⚠️</div>
+        <div class="connection-failed-title" id="connection-failed-title">本活動不支援現有裝置</div>
+        <div class="connection-failed-sub" id="connection-failed-sub">請使用 SWAG 網頁版開啟</div>
+        <button class="connection-retry-btn" id="connection-retry-btn" type="button">
+          <span id="connection-retry-text">🌐 前往 SWAG 網頁版</span>
+        </button>
+        <button class="connection-rules-btn" id="connection-rules-btn" type="button">
+          <span id="connection-rules-text">📖 查看活動規則</span>
+        </button>
+      </div>
+
+      <!-- T1: In-progress + bet placed -->
+      <div class="hero-card hidden" id="hero-card"></div>
+
+      <!-- T1: In-progress + no bet today -->
+      <div class="hero-card no-bet hidden" id="hero-no-bet">
+        <div class="hero-no-bet-icon">🎮</div>
+        <div class="hero-no-bet-title" id="hero-no-bet-title">今日尚未下注</div>
+        <div class="hero-no-bet-sub" id="hero-no-bet-sub">下注指定遊戲即可開始累積返鑽</div>
+
+        <!-- Tier-preview (definite "bet X → earn Y") -->
+        <div class="hero-tier-preview" id="hero-no-bet-tier-preview"></div>
+
+        <!-- Rules link (above CTA) -->
+        <button class="hero-no-bet-rules-link" id="hero-no-bet-rules-btn" type="button">
+          <span id="hero-no-bet-rules-text">📖 查看活動規則</span>
+        </button>
+
+        <!-- Big CTA -->
+        <a class="hero-cta-btn no-bet-cta-big" id="hero-no-bet-cta"
+           href="https://swag.live/livestream/0?campaign-id=open-game-menu"
+           target="_blank" rel="noopener noreferrer">
+          <span class="hero-cta-shimmer" aria-hidden="true"></span>
+          <span class="cta-main-text" id="hero-no-bet-cta-text">▶ 立即開始下注</span>
+        </a>
+      </div>
+
+      <!-- T2: Event ended · final summary -->
+      <div class="hero-card final-summary hidden" id="hero-final-summary"></div>
+    </div>
+
+    <!-- ── 📊 Status Section (我的當前狀態 - 次要三欄) ── -->
+    <div class="section" id="section-status">
+      <div class="section-title" id="label-badge-section">我的當前狀態</div>
+      <div class="skeleton-card" id="skeleton-summary">
+        <div class="skel-row">
+          <div class="skel-block"></div>
+          <div class="skel-block"></div>
+          <div class="skel-block"></div>
+        </div>
+      </div>
+      <div class="status-card hidden" id="status-card"></div>
+    </div>
+
+    <!-- ── 🏆 Achievement Section (徽章 + 累積合併成長敘事) ── -->
+    <div class="section" id="section-achievement">
+      <div class="section-title" id="label-summary-section">我的成就</div>
+      <div class="skeleton-card" id="skeleton-badge">
+        <div class="skel-line medium"></div>
+        <div class="skel-line short" style="margin-top: var(--spacing-4);"></div>
+      </div>
+      <div class="achievement-card hidden" id="achievement-card"></div>
+    </div>
+
+    <!-- ── 📜 Settled Records Section ── -->
+    <div class="section hidden" id="section-records">
+      <div class="records-header">
+        <div class="section-title" id="label-records-section">已結算紀錄</div>
+        <div class="total-rebate-chip" id="total-rebate-chip" style="display:none;"></div>
+      </div>
+
+      <!-- Records content (hidden until loaded) -->
+      <div class="hidden" id="records-content"></div>
+
+      <!-- No records state (kept for i18n compatibility, never actually shown per current spec) -->
+      <div class="hidden" id="no-records">
+        <div style="text-align:center; padding: var(--spacing-6) 0; color: var(--color-on-primary-3); font-size: var(--font-body-small);" id="no-records-text">尚無結算紀錄</div>
+      </div>
+    </div>
+
+    <!-- ── Notice Section ── -->
+    <div class="section">
+      <div class="rules-toggle notice-toggle" onclick="toggleNotice()">
+        <span class="rules-toggle-label">
+          <span class="notice-icon" aria-hidden="true">⚠️</span>
+          <span id="label-notice">注意事項</span>
+        </span>
+        <span class="rules-arrow" id="notice-arrow">▼</span>
+      </div>
+      <div class="rules-body notice-body" id="notice-body">
+        <ol class="notice-list" id="notice-list">
+          <!-- rendered by JS -->
+        </ol>
+      </div>
+    </div>
+
+  </div><!-- /page-content -->
+
+  <!-- Fixed Bottom CTA -->
+  <div class="cta-fixed" id="cta-fixed">
+    <a href="https://swag.live/livestream/0?campaign-id=open-game-menu"
+       target="_blank"
+       rel="noopener noreferrer"
+       id="cta-play-now-link">
+      <span class="cta-icon" aria-hidden="true">▶</span>
+      <span id="cta-play-now-text">立即玩遊戲</span>
+    </a>
+  </div>
+
+  <!-- Badge Modal (Anime style) -->
+  <div class="badge-modal-scrim" id="badge-modal-scrim" role="dialog" aria-modal="true" aria-labelledby="badge-modal-title" aria-hidden="true">
+    <div class="badge-modal" id="badge-modal">
+      <button class="badge-modal-close" id="badge-modal-close" aria-label="Close">×</button>
+
+      <div class="badge-modal-hero" id="badge-modal-hero">
+        <!-- SVG injected by JS; fallback handled in code -->
+      </div>
+
+      <h2 class="badge-modal-title" id="badge-modal-title">博弈遊戲王</h2>
+
+      <div class="badge-modal-status" id="badge-modal-status">
+        <span id="badge-modal-status-text">尚未獲得</span>
+      </div>
+
+      <div class="badge-modal-section">
+        <div class="badge-modal-section-label" id="badge-modal-how-label">獲得方式</div>
+        <div class="badge-modal-section-body" id="badge-modal-how-body">下注直播間遊戲達 50,000 鑽</div>
+      </div>
+
+      <div class="badge-modal-section badge-modal-progress" id="badge-modal-progress-section">
+        <div class="badge-modal-section-label" id="badge-modal-progress-label">獲取進度</div>
+        <div class="badge-modal-progress-nums">
+          <span class="current" id="badge-modal-progress-current">0</span>
+          <span class="threshold" id="badge-modal-progress-threshold">/ 50,000</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="badge-modal-progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rules Modal (same anime style as badge modal, but content is rules) -->
+  <div class="badge-modal-scrim rules-modal-scrim" id="rules-modal-scrim" role="dialog" aria-modal="true" aria-labelledby="rules-modal-title" aria-hidden="true">
+    <div class="badge-modal rules-modal" id="rules-modal">
+      <button class="badge-modal-close" id="rules-modal-close" aria-label="Close">×</button>
+
+      <div class="rules-modal-icon" aria-hidden="true">📖</div>
+      <h2 class="badge-modal-title rules-modal-title" id="rules-modal-title">活動規則</h2>
+
+      <!-- Section 1: Rebate tiers -->
+      <div class="rules-modal-section">
+        <div class="rules-modal-section-head">
+          <span class="rules-modal-section-icon">📊</span>
+          <span id="rules-modal-tier-title">返鑽階梯</span>
+        </div>
+        <table class="tier-table rules-modal-tier-table" id="rules-modal-tier-table">
+          <!-- rendered by JS -->
+        </table>
+      </div>
+
+      <!-- Section 2: Badge -->
+      <div class="rules-modal-section">
+        <div class="rules-modal-section-head">
+          <span class="rules-modal-section-icon">🏆</span>
+          <span id="rules-modal-badge-title">博弈遊戲王徽章</span>
+        </div>
+        <div class="rules-note-list" id="rules-modal-badge-note"></div>
+      </div>
+
+      <!-- Section 3: Global bonus -->
+      <div class="rules-modal-section">
+        <div class="rules-modal-section-head">
+          <span class="rules-modal-section-icon">⚡</span>
+          <span id="rules-modal-bonus-title">全員加碼</span>
+        </div>
+        <div class="rules-note-list" id="rules-modal-bonus-note"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ═══════════════════════════════════════════════════
+       Constants
+    ═══════════════════════════════════════════════════ */
+    const API_BASE = "https://game-rebate-bff-905468082258.asia-east1.run.app";
+
+    const ACTIVITY_START_DATE = "2026-05-27";
+    const ACTIVITY_END_DATE   = "2026-05-29";
+    const BADGE_THRESHOLD     = 50000;
+    const BADGE_SVG_URL       = "https://public.swag.live/badges/campaign_game_king.svg";
+
+    const GAME_IMAGES = {
+      game1: "https://swag.live/static/img/img-dragon-tiger-fight.8e6f98c2.jpg",
+      game2: "https://swag.live/static/img/img-soaring-high.65f183a9.jpg",
+      game3: "https://swag.live/static/img/img-golden-gate.82dd1f27.jpg",
+    };
+
+    const TIER_META = {
+      none:    { icon: "—",  label: { "zh-TW": "未達級別", "zh-CN": "未达级别", en: "No Tier",   ja: "レベルなし" }, rate: "—",    nextMin: 1000,   color: "none"    },
+      bronze:  { icon: "🥉", label: { "zh-TW": "銅級",     "zh-CN": "铜级",     en: "Bronze",   ja: "ブロンズ"  }, rate: "1.0%",  nextMin: 10000,  color: "bronze"  },
+      silver:  { icon: "🥈", label: { "zh-TW": "銀級",     "zh-CN": "银级",     en: "Silver",   ja: "シルバー"  }, rate: "1.5%",  nextMin: 50000,  color: "silver"  },
+      gold:    { icon: "🥇", label: { "zh-TW": "金級",     "zh-CN": "金级",     en: "Gold",     ja: "ゴールド"  }, rate: "2.0%",  nextMin: 200000, color: "gold"    },
+      diamond: { icon: "💎", label: { "zh-TW": "鑽級",     "zh-CN": "钻级",     en: "Diamond",  ja: "ダイヤ"    }, rate: "2.5%",  nextMin: null,   color: "diamond" },
+    };
+
+    const TIER_PREV_MIN = { none: 0, bronze: 1000, silver: 10000, gold: 50000, diamond: 200000 };
+
+    /* ═══════════════════════════════════════════════════
+       i18n
+    ═══════════════════════════════════════════════════ */
+    const I18N = {
+      "zh-TW": {
+        activityName:     "博弈遊戲王",
+        subtitle:         "玩直播間遊戲 天天領鑽石",
+        game1:            "龍乳鬥白虎",
+        game2:            "一柱擎天",
+        game3:            "金射狂風",
+        todaySection:     "今日進度",
+        badgeSection:     "博弈遊戲王徽章",
+        recordsSection:   "已結算紀錄",
+        rules:            "活動規則",
+        rulesTier:        "返鑽階梯",
+        rulesBadge:       "博弈遊戲王徽章",
+        rulesBonus:       "全員加碼",
+        tierLabel:        "等級",
+        dailyBet:         "今日下注",
+        rebate:           "預計返鑽",
+        settledRebate:    "已結算返鑽",
+        rank:             "今日排名",
+        rate:             "返鑽率",
+        toNextTier:       "距下一級",
+        maxTier:          "已達最高級別",
+        bonusOn:          "今日已觸發全員加碼 +0.5%",
+        bonusOff:         "今日加碼未觸發",
+        bonusCount:       "{count} / 1,000 人達成",
+        noTodayTitle:     "今日尚未下注",
+        noTodaySub:       "下注指定遊戲即可參與活動",
+        badgeEarned:      "🎖️ 徽章已達成！",
+        badgePending:     "尚未達成（累積下注門檻：50,000 鑽）",
+        badgeProgress:    "累積下注進度",
+        noRecords:        "尚無結算紀錄",
+        totalRebate:      "累計返鑽 {n} 鑽",
+        day:              "第 {n} 天",
+        dayShort:         "Day {n} / 3",
+        diamond:          "鑽",
+        capNote:          "已達上限",
+        settled:          "已結算",
+        rank_unit:        " 名",
+        oldBadgeNote:     "★ 舊徽章特權：享金級返鑽保底",
+        rulesNoteThreshold: "・每日下注門檻：銅 1,000 / 銀 10,000 / 金 50,000 / 鑽 200,000 鑽",
+        rulesNoteCap:       "・單人單日返鑽上限：10,000 鑽",
+        rulesNoteMax3:      "・3 天最多可領 30,000 鑽",
+        rulesBadgeNote1:    "・3 天累積下注 ≥ 50,000 鑽即可取得永久徽章",
+        rulesBadgeNote2:    "・舊徽章持有者：下注 1,000 鑽直接享金級 2% 返鑽",
+        rulesBonusNote1:    "・觸發條件：單日 ≥ 1,000 人達成任意級別",
+        rulesBonusNote2:    "・觸發效果：全員當日返鑽率 +0.5%",
+        rulesBonusNote3:    "・每日獨立判斷，不延伸至次日",
+        tierThreshold:      "每日下注門檻",
+        tierRate:           "返鑽率",
+        tierCap:            "單日上限",
+        participants:       "參與人數",
+        noticeSection:      "注意事項",
+        notice1:            "活動期間為 5/27 00:00 至 5/29 23:59 (UTC+8)。",
+        notice2:            "每日返鑽紀錄可於此查看，約 5 分鐘更新，遊戲紀錄可於遊戲中查詢。",
+        notice3:            "下注鑽石達標可獲 1% ~ 2.5% 鑽石返還，每日返還上限 10,000 鑽石。",
+        notice4:            "可返還鑽石將於次日 00:30 前發送。例如：5/27 下注 100,000 鑽石達金級門檻，5/28 00:30 前可獲 2% 鑽石返還，約可獲得 2,000 返鑽。",
+        notice5:            "下注鑽石將扣除取消下注，以官方計算為準。",
+        notice6:            "累積鑽石達 5 萬鑽石，將可自動獲得「博弈遊戲王」遊戲勳章。",
+        notice7:            "資料會有系統延遲，至少需 5 分鐘刷新，最終結果以官方計算為準。",
+        notice8:            "請先登入帳號以正確顯示資料。",
+        notice9:            "SWAG 保留修改、變更、解釋及取消活動之權利。",
+        badgeModalTitle:    "博弈遊戲王",
+        badgeModalEarned:   "✨ 已獲得",
+        badgeModalLocked:   "🔒 尚未獲得",
+        badgeModalHowLabel: "獲得方式",
+        badgeModalHow:      "下注直播間遊戲達 50,000 鑽",
+        badgeModalProgress: "獲取進度",
+        badgeModalClose:    "關閉",
+        badgeModalTapHint:  "點擊查看徽章詳情",
+        countdownLabel:     "距活動結束",
+        countdownEnded:     "活動已結束，結算中",
+        countdownNotStarted:"活動尚未開始",
+        countdownDays:      "天",
+        countdownHours:     "時",
+        countdownMins:      "分",
+        countdownSecs:      "秒",
+        updatedAt:          "資料更新於 {n}",
+        updatedJustNow:     "剛剛",
+        updatedMinsAgo:     "{n} 分鐘前",
+        updatedHoursAgo:    "{n} 小時前",
+        refreshTip:         "重新整理",
+        summarySection:     "累積總覽",
+        summaryTotalBet:    "累積下注",
+        summaryTotalRebate: "累積返鑽",
+        summaryDays:        "已參與天數",
+        summaryDaysFmt:     "{n} / {total} 天",
+        nextTierEstimate:   "再下注 {gap} {unit} → 達{tier} {rate}",
+        nextTierMaxRebate:  "最高可領 {n} 鑽",
+        nextTierAtMax:      "已達最高級別，最高可領 10,000 鑽",
+        oldBadgeChip:       "⭐ 保底",
+        oldBadgeRecordTag:  "★ 享金級保底",
+        bonusActiveBanner:  "✨ 全員加碼已觸發 +0.5%",
+        bonusPendingLabel:  "全員加碼進度",
+        bonusPendingHint:   "達 1,000 人觸發 +0.5%",
+        bonusParticipants:  "{n} 人參與中",
+        ctaPlayNow:         "立即玩遊戲",
+        rulesCta:           "活動規則",
+        rulesCurrentTier:   "目前所在",
+        heroEyebrow:        "✨ 今日預估返鑽",
+        heroCtaUpgrade:     "▶ 立即玩遊戲衝下一級",
+        heroCtaMax:         "▶ 立即玩遊戲領滿上限",
+        heroCtaStart:       "▶ 立即開始下注",
+        heroNoBet:          "今日尚未下注",
+        heroNoBetSub:       "下注指定遊戲即可開始累積返鑽",
+        heroNoBetSubOldBadge: "享金級保底 2%，下注立即生效",
+        heroNoBetRulesLink: "📖 查看活動規則",
+        heroNoBetTierTitle: "✨ 您下注就能拿",
+        heroNoBetTierExample: "下注 {bet} → 領 {rebate}",
+        heroNoBetTierBadge:   "★ 獲得徽章",
+        heroNoBetTierCapNote: "單日返鑽上限 10,000 鑽",
+
+        // U2 cap-reached state
+        capReachedHero:    "✨ 將於明日 00:30 派發到您帳戶",
+        heroCtaToBadge:    "▶ 繼續玩衝徽章門檻",
+        heroCtaTomorrow:   "▶ 明日 00:30 派發 · 繼續挑戰",
+
+        // T2 final summary
+        finalSummaryTitle:    "📊 活動最終戰績",
+        finalSummaryTotalBet:    "累積下注總額",
+        finalSummaryTotalRebate: "累積已領返鑽",
+        finalSummaryBadgeYes:    "🏆 已獲得博弈遊戲王徽章",
+        finalSummaryBadgeNo:     "本次未達徽章門檻",
+        finalSummaryClosingNote: "感謝您的參與，期待下次再見",
+
+        // Handshake / connection states
+        connectingHint:       "正在連線…",
+        connectingSlow:       "連線時間較長，請稍候",
+        connectionFailedTitle: "本活動不支援現有裝置",
+        connectionFailedSub:   "請使用 SWAG 網頁版開啟",
+        connectionRetryBtn:    "🌐 前往 SWAG 網頁版",
+        connectionRulesBtn:   "📖 查看活動規則",
+        statusSection:      "我的當前狀態",
+        statusBet:          "今日下注",
+        statusRank:         "當前排名",
+        statusDays:         "已參與",
+        achievementSection: "我的成就",
+        achievementBadgeStatus: "徽章",
+        achievementCumulativeBet:    "累積下注進度",
+        achievementCumulativeRebate: "累積已領返鑽",
+        achievementUnlock:  "解鎖門檻 50,000 鑽",
+        achievementOwnedChip:   "⭐ 永久持有",
+        achievementEarnedChip:  "🎉 本次達成",
+        achievementLockedChip:  "🔒 尚未獲得",
+        achievementOwnedSub:    "享金級保底 2% 返鑽",
+        achievementEarnedSub:   "恭喜！您已獲得永久徽章",
+        achievementNotRequired: "本次不需再達成",
+      },
+      "zh-CN": {
+        activityName:     "博弈游戏王",
+        subtitle:         "玩直播间游戏 天天领钻石",
+        game1:            "龙乳斗白虎",
+        game2:            "一柱擎天",
+        game3:            "金射狂风",
+        todaySection:     "今日进度",
+        badgeSection:     "博弈游戏王徽章",
+        recordsSection:   "已结算记录",
+        rules:            "活动规则",
+        rulesTier:        "返钻阶梯",
+        rulesBadge:       "博弈游戏王徽章",
+        rulesBonus:       "全员加码",
+        tierLabel:        "等级",
+        dailyBet:         "今日下注",
+        rebate:           "预计返钻",
+        settledRebate:    "已结算返钻",
+        rank:             "今日排名",
+        rate:             "返钻率",
+        toNextTier:       "距下一级",
+        maxTier:          "已达最高级别",
+        bonusOn:          "今日已触发全员加码 +0.5%",
+        bonusOff:         "今日加码未触发",
+        bonusCount:       "{count} / 1,000 人达成",
+        noTodayTitle:     "今日尚未下注",
+        noTodaySub:       "下注指定游戏即可参与活动",
+        badgeEarned:      "🎖️ 徽章已达成！",
+        badgePending:     "尚未达成（累积下注门槛：50,000 钻）",
+        badgeProgress:    "累积下注进度",
+        noRecords:        "尚无结算记录",
+        totalRebate:      "累计返钻 {n} 钻",
+        day:              "第 {n} 天",
+        dayShort:         "Day {n} / 3",
+        diamond:          "钻",
+        capNote:          "已达上限",
+        settled:          "已结算",
+        rank_unit:        " 名",
+        oldBadgeNote:     "★ 旧徽章特权：享金级返钻保底",
+        rulesNoteThreshold: "・每日下注门槛：铜 1,000 / 银 10,000 / 金 50,000 / 钻 200,000 钻",
+        rulesNoteCap:       "・单人单日返钻上限：10,000 钻",
+        rulesNoteMax3:      "・3 天最多可领 30,000 钻",
+        rulesBadgeNote1:    "・3 天累积下注 ≥ 50,000 钻即可取得永久徽章",
+        rulesBadgeNote2:    "・旧徽章持有者：下注 1,000 钻直接享金级 2% 返钻",
+        rulesBonusNote1:    "・触发条件：单日 ≥ 1,000 人达成任意级别",
+        rulesBonusNote2:    "・触发效果：全员当日返钻率 +0.5%",
+        rulesBonusNote3:    "・每日独立判断，不延伸至次日",
+        tierThreshold:      "每日下注门槛",
+        tierRate:           "返钻率",
+        tierCap:            "单日上限",
+        participants:       "参与人数",
+        noticeSection:      "注意事项",
+        notice1:            "活动期间为 5/27 00:00 至 5/29 23:59 (UTC+8)。",
+        notice2:            "每日返钻记录可于此查看，约 5 分钟更新，游戏记录可于游戏中查询。",
+        notice3:            "下注钻石达标可获 1% ~ 2.5% 钻石返还，每日返还上限 10,000 钻石。",
+        notice4:            "可返还钻石将于次日 00:30 前发送。例如：5/27 下注 100,000 钻石达金级门槛，5/28 00:30 前可获 2% 钻石返还，约可获得 2,000 返钻。",
+        notice5:            "下注钻石将扣除取消下注，以官方计算为准。",
+        notice6:            "累积钻石达 5 万钻石，将可自动获得「博弈游戏王」游戏勋章。",
+        notice7:            "数据会有系统延迟，至少需 5 分钟刷新，最终结果以官方计算为准。",
+        notice8:            "请先登入帐号以正确显示数据。",
+        notice9:            "SWAG 保留修改、变更、解释及取消活动之权利。",
+        badgeModalTitle:    "博弈游戏王",
+        badgeModalEarned:   "✨ 已获得",
+        badgeModalLocked:   "🔒 尚未获得",
+        badgeModalHowLabel: "获取方式",
+        badgeModalHow:      "下注直播间游戏达 50,000 钻",
+        badgeModalProgress: "获取进度",
+        badgeModalClose:    "关闭",
+        badgeModalTapHint:  "点击查看徽章详情",
+        countdownLabel:     "距活动结束",
+        countdownEnded:     "活动已结束，结算中",
+        countdownNotStarted:"活动尚未开始",
+        countdownDays:      "天",
+        countdownHours:     "时",
+        countdownMins:      "分",
+        countdownSecs:      "秒",
+        updatedAt:          "数据更新于 {n}",
+        updatedJustNow:     "刚刚",
+        updatedMinsAgo:     "{n} 分钟前",
+        updatedHoursAgo:    "{n} 小时前",
+        refreshTip:         "重新加载",
+        summarySection:     "累计总览",
+        summaryTotalBet:    "累计下注",
+        summaryTotalRebate: "累计返钻",
+        summaryDays:        "已参与天数",
+        summaryDaysFmt:     "{n} / {total} 天",
+        nextTierEstimate:   "再下注 {gap} {unit} → 达{tier} {rate}",
+        nextTierMaxRebate:  "最高可领 {n} 钻",
+        nextTierAtMax:      "已达最高级别，最高可领 10,000 钻",
+        oldBadgeChip:       "⭐ 保底",
+        oldBadgeRecordTag:  "★ 享金级保底",
+        bonusActiveBanner:  "✨ 全员加码已触发 +0.5%",
+        bonusPendingLabel:  "全员加码进度",
+        bonusPendingHint:   "达 1,000 人触发 +0.5%",
+        bonusParticipants:  "{n} 人参与中",
+        ctaPlayNow:         "立即玩游戏",
+        rulesCta:           "活动规则",
+        rulesCurrentTier:   "目前所在",
+        heroEyebrow:        "✨ 今日预估返钻",
+        heroCtaUpgrade:     "▶ 立即玩游戏冲下一级",
+        heroCtaMax:         "▶ 立即玩游戏领满上限",
+        heroCtaStart:       "▶ 立即开始下注",
+        heroNoBet:          "今日尚未下注",
+        heroNoBetSub:       "下注指定游戏即可开始累积返钻",
+        heroNoBetSubOldBadge: "享金级保底 2%，下注立即生效",
+        heroNoBetRulesLink: "📖 查看活动规则",
+        heroNoBetTierTitle: "✨ 您下注就能拿",
+        heroNoBetTierExample: "下注 {bet} → 领 {rebate}",
+        heroNoBetTierBadge:   "★ 获得徽章",
+        heroNoBetTierCapNote: "单日返钻上限 10,000 钻",
+
+        capReachedHero:    "✨ 将于明日 00:30 派发到您账户",
+        heroCtaToBadge:    "▶ 继续玩冲徽章门槛",
+        heroCtaTomorrow:   "▶ 明日 00:30 派发 · 继续挑战",
+
+        finalSummaryTitle:    "📊 活动最终战绩",
+        finalSummaryTotalBet:    "累积下注总额",
+        finalSummaryTotalRebate: "累积已领返钻",
+        finalSummaryBadgeYes:    "🏆 已获得博弈游戏王徽章",
+        finalSummaryBadgeNo:     "本次未达徽章门槛",
+        finalSummaryClosingNote: "感谢您的参与，期待下次再见",
+
+        connectingHint:       "正在连线…",
+        connectingSlow:       "连线时间较长，请稍候",
+        connectionFailedTitle: "本活动不支援现有装置",
+        connectionFailedSub:   "请使用 SWAG 网页版开启",
+        connectionRetryBtn:    "🌐 前往 SWAG 网页版",
+        connectionRulesBtn:   "📖 查看活动规则",
+        statusSection:      "我的当前状态",
+        statusBet:          "今日下注",
+        statusRank:         "当前排名",
+        statusDays:         "已参与",
+        achievementSection: "我的成就",
+        achievementBadgeStatus: "徽章",
+        achievementCumulativeBet:    "累积下注进度",
+        achievementCumulativeRebate: "累积已领返钻",
+        achievementUnlock:  "解锁门槛 50,000 钻",
+        achievementOwnedChip:   "⭐ 永久持有",
+        achievementEarnedChip:  "🎉 本次达成",
+        achievementLockedChip:  "🔒 尚未获得",
+        achievementOwnedSub:    "享金级保底 2% 返钻",
+        achievementEarnedSub:   "恭喜！您已获得永久徽章",
+        achievementNotRequired: "本次不需再达成",
+      },
+      en: {
+        activityName:     "Game King",
+        subtitle:         "Play Live Games · Earn Diamonds Daily",
+        game1:            "Dragon vs Tiger",
+        game2:            "Golden Gate",
+        game3:            "Soaring High",
+        todaySection:     "Today's Progress",
+        badgeSection:     "Game King Badge",
+        recordsSection:   "Settled Records",
+        rules:            "Event Rules",
+        rulesTier:        "Rebate Tiers",
+        rulesBadge:       "Game King Badge",
+        rulesBonus:       "Global Bonus",
+        tierLabel:        "Tier",
+        dailyBet:         "Today's Bet",
+        rebate:           "Est. Rebate",
+        settledRebate:    "Settled Rebate",
+        rank:             "Today's Rank",
+        rate:             "Rate",
+        toNextTier:       "To Next Tier",
+        maxTier:          "Max Tier Reached",
+        bonusOn:          "Global Bonus Active Today +0.5%",
+        bonusOff:         "Global Bonus Not Active Today",
+        bonusCount:       "{count} / 1,000 players",
+        noTodayTitle:     "No Bets Today",
+        noTodaySub:       "Place bets on eligible games to join",
+        badgeEarned:      "🎖️ Badge Earned!",
+        badgePending:     "Not yet (Threshold: 50,000 diamonds cumulative)",
+        badgeProgress:    "Cumulative Bet Progress",
+        noRecords:        "No settled records yet",
+        totalRebate:      "Total Rebate {n} 💎",
+        day:              "Day {n}",
+        dayShort:         "Day {n} / 3",
+        diamond:          "💎",
+        capNote:          "Capped",
+        settled:          "Settled",
+        rank_unit:        "",
+        oldBadgeNote:     "★ Badge Privilege: Gold tier rebate guaranteed",
+        rulesNoteThreshold: "・Daily bet threshold: Bronze 1,000 / Silver 10,000 / Gold 50,000 / Diamond 200,000",
+        rulesNoteCap:       "・Single-day rebate cap: 10,000 diamonds",
+        rulesNoteMax3:      "・Max 30,000 diamonds over 3 days",
+        rulesBadgeNote1:    "・Cumulative bet ≥ 50,000 diamonds over 3 days earns permanent badge",
+        rulesBadgeNote2:    "・Badge holders: 1,000+ diamonds qualifies for Gold 2% rebate",
+        rulesBonusNote1:    "・Trigger: 1,000+ players reach any tier in one day",
+        rulesBonusNote2:    "・Effect: All players get +0.5% rebate rate that day",
+        rulesBonusNote3:    "・Evaluated independently each day",
+        tierThreshold:      "Daily Bet",
+        tierRate:           "Rate",
+        tierCap:            "Cap",
+        participants:       "Participants",
+        noticeSection:      "Notice",
+        notice1:            "Event period: 5/27 00:00 — 5/29 23:59 (UTC+8).",
+        notice2:            "Daily rebate records are shown here and refresh approximately every 5 minutes. Game records are available in-game.",
+        notice3:            "Eligible bets earn 1% – 2.5% diamond rebate, capped at 10,000 diamonds per day.",
+        notice4:            "Rebates are distributed before 00:30 the next day. Example: betting 100,000 diamonds on 5/27 reaches Gold tier; before 5/28 00:30 you receive 2% (about 2,000 diamonds).",
+        notice5:            "Cancelled bets are deducted from the total. Official figures prevail.",
+        notice6:            "Cumulative bets ≥ 50,000 diamonds automatically earn the \"Game King\" badge.",
+        notice7:            "Data may be delayed and refreshes at least every 5 minutes. Final results follow official calculations.",
+        notice8:            "Please log in for accurate display.",
+        notice9:            "SWAG reserves the right to modify, change, interpret or cancel the event.",
+        badgeModalTitle:    "Game King",
+        badgeModalEarned:   "✨ Earned",
+        badgeModalLocked:   "🔒 Not yet earned",
+        badgeModalHowLabel: "How to Earn",
+        badgeModalHow:      "Bet 50,000 diamonds on live games",
+        badgeModalProgress: "Progress",
+        badgeModalClose:    "Close",
+        badgeModalTapHint:  "Tap for details",
+        countdownLabel:     "Ends in",
+        countdownEnded:     "Event ended, settling",
+        countdownNotStarted:"Event not started",
+        countdownDays:      "d",
+        countdownHours:     "h",
+        countdownMins:      "m",
+        countdownSecs:      "s",
+        updatedAt:          "Updated {n}",
+        updatedJustNow:     "just now",
+        updatedMinsAgo:     "{n} min ago",
+        updatedHoursAgo:    "{n} h ago",
+        refreshTip:         "Refresh",
+        summarySection:     "Cumulative Summary",
+        summaryTotalBet:    "Total Bet",
+        summaryTotalRebate: "Total Rebate",
+        summaryDays:        "Days Joined",
+        summaryDaysFmt:     "{n} / {total}",
+        nextTierEstimate:   "Bet {gap} {unit} more → reach {tier} ({rate})",
+        nextTierMaxRebate:  "Up to {n} 💎",
+        nextTierAtMax:      "Max tier reached. Up to 10,000 💎 daily.",
+        oldBadgeChip:       "⭐ Min. Gold",
+        oldBadgeRecordTag:  "★ Gold-tier guaranteed",
+        bonusActiveBanner:  "✨ Global Bonus Active +0.5%",
+        bonusPendingLabel:  "Global Bonus Progress",
+        bonusPendingHint:   "Activates at 1,000 players",
+        bonusParticipants:  "{n} players joined",
+        ctaPlayNow:         "Play Now",
+        rulesCta:           "Event Rules",
+        rulesCurrentTier:   "You're here",
+        heroEyebrow:        "✨ Today's Estimated Rebate",
+        heroCtaUpgrade:     "▶ Play & Reach Next Tier",
+        heroCtaMax:         "▶ Play & Max Out Rebate",
+        heroCtaStart:       "▶ Start Betting Now",
+        heroNoBet:          "No Bets Today",
+        heroNoBetSub:       "Bet on eligible games to start earning rebate",
+        heroNoBetSubOldBadge: "Guaranteed Gold-tier 2% — kicks in on your first bet",
+        heroNoBetRulesLink: "📖 View Event Rules",
+        heroNoBetTierTitle: "✨ Bet and earn",
+        heroNoBetTierExample: "Bet {bet} → Earn {rebate}",
+        heroNoBetTierBadge:   "★ Badge unlocked",
+        heroNoBetTierCapNote: "Daily cap 10,000 diamonds",
+
+        capReachedHero:    "✨ Payout at 00:30 tomorrow",
+        heroCtaToBadge:    "▶ Keep Playing for the Badge",
+        heroCtaTomorrow:   "▶ Continues at 00:30 Tomorrow",
+
+        finalSummaryTitle:    "📊 Final Results",
+        finalSummaryTotalBet:    "Total Bet",
+        finalSummaryTotalRebate: "Total Rebate Earned",
+        finalSummaryBadgeYes:    "🏆 King-of-Games Badge Earned",
+        finalSummaryBadgeNo:     "Badge threshold not reached",
+        finalSummaryClosingNote: "Thanks for joining — see you next time",
+
+        connectingHint:       "Connecting…",
+        connectingSlow:       "Taking longer than usual, please wait",
+        connectionFailedTitle: "This event isn't supported on your device",
+        connectionFailedSub:   "Please open it on the SWAG web app",
+        connectionRetryBtn:    "🌐 Open SWAG Web App",
+        connectionRulesBtn:   "📖 View Event Rules",
+        statusSection:      "My Status",
+        statusBet:          "Today's Bet",
+        statusRank:         "Current Rank",
+        statusDays:         "Days Joined",
+        achievementSection: "My Achievement",
+        achievementBadgeStatus: "Badge",
+        achievementCumulativeBet:    "Cumulative Bet Progress",
+        achievementCumulativeRebate: "Total Rebate Earned",
+        achievementUnlock:  "Unlock at 50,000 diamonds",
+        achievementOwnedChip:   "⭐ Permanent",
+        achievementEarnedChip:  "🎉 Just Earned",
+        achievementLockedChip:  "🔒 Not Yet Earned",
+        achievementOwnedSub:    "Guaranteed Gold-tier 2% rebate",
+        achievementEarnedSub:   "Congrats! Permanent badge unlocked",
+        achievementNotRequired: "Already owned · no need to reach again",
+      },
+      ja: {
+        activityName:     "ゲームキング",
+        subtitle:         "ライブゲームでダイヤを毎日獲得",
+        game1:            "ドラゴンVSタイガー",
+        game2:            "ゴールデンゲート",
+        game3:            "ソアリングハイ",
+        todaySection:     "今日の進捗",
+        badgeSection:     "ゲームキングバッジ",
+        recordsSection:   "確定済み記録",
+        rules:            "イベントルール",
+        rulesTier:        "ダイヤ還元階段",
+        rulesBadge:       "ゲームキングバッジ",
+        rulesBonus:       "全員ボーナス",
+        tierLabel:        "レベル",
+        dailyBet:         "本日ベット",
+        rebate:           "予定ダイヤ還元",
+        settledRebate:    "確定ダイヤ還元",
+        rank:             "本日ランク",
+        rate:             "ダイヤ還元率",
+        toNextTier:       "次レベルまで",
+        maxTier:          "最高レベル達成",
+        bonusOn:          "本日全員ボーナス発動中 +0.5%",
+        bonusOff:         "本日ボーナス未発動",
+        bonusCount:       "{count} / 1,000 人達成",
+        noTodayTitle:     "本日ベットなし",
+        noTodaySub:       "対象ゲームにベットして参加しよう",
+        badgeEarned:      "🎖️ バッジ獲得！",
+        badgePending:     "未達成（累計ベット条件：50,000 ダイヤ）",
+        badgeProgress:    "累計ベット進捗",
+        noRecords:        "確定済み記録はまだありません",
+        totalRebate:      "累計ダイヤ還元 {n} ダイヤ",
+        day:              "{n}日目",
+        dayShort:         "Day {n} / 3",
+        diamond:          "ダイヤ",
+        capNote:          "上限到達",
+        settled:          "確定済み",
+        rank_unit:        "位",
+        oldBadgeNote:     "★ バッジ特典：ゴールドレベルダイヤ還元保証",
+        rulesNoteThreshold: "・1日ベット条件：ブロンズ 1,000 / シルバー 10,000 / ゴールド 50,000 / ダイヤ 200,000",
+        rulesNoteCap:       "・1人1日ダイヤ還元上限：10,000 ダイヤ",
+        rulesNoteMax3:      "・3日間最大 30,000 ダイヤ",
+        rulesBadgeNote1:    "・3日間累計ベット ≥ 50,000 ダイヤで永久バッジ取得",
+        rulesBadgeNote2:    "・バッジ所持者：1,000 ダイヤ以上でゴールド 2% ダイヤ還元保証",
+        rulesBonusNote1:    "・発動条件：1日 ≥ 1,000 人達成",
+        rulesBonusNote2:    "・効果：全員の当日ダイヤ還元率 +0.5%",
+        rulesBonusNote3:    "・毎日独立して判定（翌日には持越なし）",
+        tierThreshold:      "1日ベット条件",
+        tierRate:           "ダイヤ還元率",
+        tierCap:            "上限",
+        participants:       "参加人数",
+        noticeSection:      "注意事項",
+        notice1:            "イベント期間：5/27 00:00 〜 5/29 23:59 (UTC+8)。",
+        notice2:            "毎日のダイヤ還元記録はこちらで確認可能、約 5 分毎に更新されます。ゲーム記録はゲーム内でご確認ください。",
+        notice3:            "ベット条件達成で 1% 〜 2.5% のダイヤ還元、1日上限 10,000 ダイヤ。",
+        notice4:            "還元ダイヤは翌日 00:30 までに付与されます。例：5/27 に 100,000 ダイヤをベットしゴールド達成、5/28 00:30 までに 2%（約 2,000 ダイヤ）獲得。",
+        notice5:            "キャンセルしたベットは差し引かれ、公式の計算が優先されます。",
+        notice6:            "累計 50,000 ダイヤ達成で「ゲームキング」バッジを自動獲得。",
+        notice7:            "データには遅延が発生する場合があり、最低 5 分毎に更新されます。最終結果は公式の計算に従います。",
+        notice8:            "正しい表示のためログインしてください。",
+        notice9:            "SWAG はイベントの変更・取消・解釈の権利を有します。",
+        badgeModalTitle:    "ゲームキング",
+        badgeModalEarned:   "✨ 獲得済み",
+        badgeModalLocked:   "🔒 未獲得",
+        badgeModalHowLabel: "獲得方法",
+        badgeModalHow:      "ライブゲームに 50,000 ダイヤをベット",
+        badgeModalProgress: "獲得進捗",
+        badgeModalClose:    "閉じる",
+        badgeModalTapHint:  "タップで詳細を表示",
+        countdownLabel:     "終了まで",
+        countdownEnded:     "イベント終了、集計中",
+        countdownNotStarted:"イベント未開始",
+        countdownDays:      "日",
+        countdownHours:     "時",
+        countdownMins:      "分",
+        countdownSecs:      "秒",
+        updatedAt:          "更新：{n}",
+        updatedJustNow:     "たった今",
+        updatedMinsAgo:     "{n}分前",
+        updatedHoursAgo:    "{n}時間前",
+        refreshTip:         "再読み込み",
+        summarySection:     "累計サマリー",
+        summaryTotalBet:    "累計ベット",
+        summaryTotalRebate: "累計ダイヤ還元",
+        summaryDays:        "参加日数",
+        summaryDaysFmt:     "{n} / {total} 日",
+        nextTierEstimate:   "あと {gap} {unit} → {tier} ({rate}) 達成",
+        nextTierMaxRebate:  "最大 {n} ダイヤ",
+        nextTierAtMax:      "最高レベル達成、最大 10,000 ダイヤ獲得可能",
+        oldBadgeChip:       "⭐ 保証",
+        oldBadgeRecordTag:  "★ ゴールド保証",
+        bonusActiveBanner:  "✨ 全員ボーナス発動中 +0.5%",
+        bonusPendingLabel:  "全員ボーナス進捗",
+        bonusPendingHint:   "1,000 人達成で +0.5% 発動",
+        bonusParticipants:  "{n} 人参加中",
+        ctaPlayNow:         "今すぐプレイ",
+        rulesCta:           "イベントルール",
+        rulesCurrentTier:   "現在のレベル",
+        heroEyebrow:        "✨ 本日の予想ダイヤ還元",
+        heroCtaUpgrade:     "▶ プレイして次レベルへ",
+        heroCtaMax:         "▶ プレイして上限まで獲得",
+        heroCtaStart:       "▶ 今すぐベット開始",
+        heroNoBet:          "本日ベットなし",
+        heroNoBetSub:       "対象ゲームにベットして還元を獲得しよう",
+        heroNoBetSubOldBadge: "ゴールド保証 2%、ベット後すぐ反映",
+        heroNoBetRulesLink: "📖 イベントルールを見る",
+        heroNoBetTierTitle: "✨ ベットして獲得",
+        heroNoBetTierExample: "ベット {bet} → 獲得 {rebate}",
+        heroNoBetTierBadge:   "★ バッジ獲得",
+        heroNoBetTierCapNote: "1日上限 10,000 ダイヤ",
+
+        capReachedHero:    "✨ 明日 00:30 にアカウントへ送付",
+        heroCtaToBadge:    "▶ プレイしてバッジ獲得",
+        heroCtaTomorrow:   "▶ 明日 00:30 配布・続行",
+
+        finalSummaryTitle:    "📊 イベント最終結果",
+        finalSummaryTotalBet:    "累計ベット額",
+        finalSummaryTotalRebate: "累計獲得ダイヤ還元",
+        finalSummaryBadgeYes:    "🏆 King-of-Games バッジ獲得",
+        finalSummaryBadgeNo:     "バッジ条件未達成",
+        finalSummaryClosingNote: "ご参加ありがとうございました",
+
+        connectingHint:       "接続中…",
+        connectingSlow:       "接続に時間がかかっています",
+        connectionFailedTitle: "このイベントはこの端末ではご利用いただけません",
+        connectionFailedSub:   "SWAG Web 版でお開きください",
+        connectionRetryBtn:    "🌐 SWAG Web 版を開く",
+        connectionRulesBtn:   "📖 イベントルールを見る",
+        statusSection:      "現在のステータス",
+        statusBet:          "本日ベット",
+        statusRank:         "現在ランク",
+        statusDays:         "参加日数",
+        achievementSection: "実績",
+        achievementBadgeStatus: "バッジ",
+        achievementCumulativeBet:    "累計ベット進捗",
+        achievementCumulativeRebate: "累計獲得ダイヤ還元",
+        achievementUnlock:  "解放条件 50,000 ダイヤ",
+        achievementOwnedChip:   "⭐ 永久所持",
+        achievementEarnedChip:  "🎉 今回達成",
+        achievementLockedChip:  "🔒 未獲得",
+        achievementOwnedSub:    "ゴールドレベル 2% 還元保証",
+        achievementEarnedSub:   "おめでとう！永久バッジ獲得",
+        achievementNotRequired: "今回は達成不要",
+      },
+    };
+
+    /* ═══════════════════════════════════════════════════
+       State
+    ═══════════════════════════════════════════════════ */
+    let currentLang = "zh-TW";
+    let token       = null;
+    let retryInterval = null;
+    let apiData     = null;
+
+    /* ═══════════════════════════════════════════════════
+       Utilities
+    ═══════════════════════════════════════════════════ */
+    function esc(str) {
+      const d = document.createElement("div");
+      d.textContent = str == null ? "" : String(str);
+      return d.innerHTML;
+    }
+
+    function t(key, vars) {
+      let s = (I18N[currentLang] || I18N["zh-TW"])[key] || key;
+      if (vars) Object.entries(vars).forEach(([k, v]) => { s = s.replace("{" + k + "}", v); });
+      return s;
+    }
+
+    function fmtNum(n) {
+      return Number(n).toLocaleString();
+    }
+
+    function getCurrentActivityDay() {
+      const start = new Date("2026-05-27T00:00:00+08:00").getTime();
+      const now   = Date.now();
+      const day   = Math.floor((now - start) / 86400000) + 1;
+      return Math.min(3, Math.max(1, day));
+    }
+
+    function parseBetDate(dateStr) {
+      // "2026-05-27" or "2026-05-27T..." → "2026-05-27"
+      return String(dateStr || "").slice(0, 10);
+    }
+
+    function formatDisplayDate(dateStr) {
+      const d = parseBetDate(dateStr);
+      const parts = d.split("-");
+      if (parts.length < 3) return d;
+      return `${parts[1]}/${parts[2]}`;
+    }
+
+    function getDayNum(dateStr) {
+      const start = new Date("2026-05-27T00:00:00+08:00").getTime();
+      const target = new Date(parseBetDate(dateStr) + "T00:00:00+08:00").getTime();
+      return Math.floor((target - start) / 86400000) + 1;
+    }
+
+    function tierProgress(level, dailyBet) {
+      const prev = TIER_PREV_MIN[level] || 0;
+      const next = TIER_META[level] ? TIER_META[level].nextMin : null;
+      if (!next) return { pct: 100, needed: 0, isMax: true };
+      const range = next - prev;
+      const done  = Math.max(0, dailyBet - prev);
+      const pct   = Math.min(100, (done / range) * 100);
+      const needed = Math.max(0, next - dailyBet);
+      return { pct, needed, isMax: false };
+    }
+
+    /**
+     * Return next-tier estimate object.
+     * Uses TIER_META.rate (raw rate, NOT final_rebate_rate) because final_rebate_rate
+     * already includes bonus (+0.5%) which doesn't apply to "what if I reach next tier" estimation.
+     */
+    const TIER_ORDER = ["none", "bronze", "silver", "gold", "diamond"];
+    const RAW_TIER_RATE_DECIMAL = {
+      bronze: 0.010, silver: 0.015, gold: 0.020, diamond: 0.025
+    };
+    const DAILY_REBATE_CAP = 10000;
+
+    function nextTierEstimate(currentLevel, dailyBet) {
+      // No tier yet → next is bronze (1,000)
+      const idx = TIER_ORDER.indexOf(currentLevel);
+      if (idx < 0 || currentLevel === "diamond") {
+        return { isMax: currentLevel === "diamond" };
+      }
+      const nextLevel = TIER_ORDER[idx + 1];
+      const nextThreshold = TIER_META[currentLevel].nextMin;
+      const gap = Math.max(0, nextThreshold - dailyBet);
+      const rate = RAW_TIER_RATE_DECIMAL[nextLevel] || 0;
+      // Rebate if user reaches threshold exactly
+      const estMax = Math.min(Math.floor(nextThreshold * rate), DAILY_REBATE_CAP);
+      return {
+        isMax: false,
+        nextLevel,
+        gap,
+        rate,
+        estMax,
+      };
+    }
+
+    /**
+     * Format ISO timestamp into relative-time text (zh-TW style by default).
+     * Uses currentLang via t() lookups.
+     */
+    function relativeTimeFromNow(isoStr) {
+      if (!isoStr) return "";
+      const ts = new Date(isoStr).getTime();
+      if (isNaN(ts)) return "";
+      const diffMs = Date.now() - ts;
+      const diffSec = Math.floor(diffMs / 1000);
+      if (diffSec < 60)        return t("updatedJustNow");
+      const diffMin = Math.floor(diffSec / 60);
+      if (diffMin < 60)        return t("updatedMinsAgo", { n: diffMin });
+      const diffHour = Math.floor(diffMin / 60);
+      return t("updatedHoursAgo", { n: diffHour });
+    }
+
+    /**
+     * Countdown timer — updates header every second.
+     */
+    let countdownTimer = null;
+    const ACTIVITY_END_TS   = new Date("2026-05-29T23:59:59+08:00").getTime();
+
+    /**
+     * Get current activity phase: "running" | "ended"
+     * Allow simulating phase via ?phase= URL param for QA in dev mode.
+     * Note: pre-launch is no longer a distinct phase — the countdown pill
+     * just keeps counting down to ACTIVITY_END_TS regardless of start time.
+     */
+    function getActivityPhase() {
+      if (typeof window !== "undefined" && window.location && window.location.search) {
+        const params = new URLSearchParams(window.location.search);
+        const forced = params.get("phase");
+        if (["running", "ended"].includes(forced)) return forced;
+      }
+      const now = Date.now();
+      if (now > ACTIVITY_END_TS) return "ended";
+      return "running";
+    }
+
+    /**
+     * Tier preview data — used by both prelaunch card and no-bet tier preview.
+     * Each row: { tier, threshold, rate, exampleBet, exampleRebate, isBadge }
+     * "exampleBet" is the minimum bet that qualifies for this tier; "exampleRebate"
+     * is the rebate at that minimum bet (capped by DAILY_REBATE_CAP).
+     */
+    function getTierPreviewRows() {
+      const rows = [
+        { tier: "bronze",  threshold: 1000,    rate: 0.010 },
+        { tier: "silver",  threshold: 10000,   rate: 0.015 },
+        { tier: "gold",    threshold: 50000,   rate: 0.020 },
+        { tier: "diamond", threshold: 200000,  rate: 0.025 },
+      ];
+      return rows.map(r => {
+        const rawRebate = r.threshold * r.rate;
+        const capped    = Math.min(rawRebate, DAILY_REBATE_CAP);
+        return {
+          tier: r.tier,
+          threshold: r.threshold,
+          rate: r.rate,
+          exampleBet:    r.threshold,
+          exampleRebate: Math.round(capped),
+          isBadge: r.threshold >= BADGE_THRESHOLD,  // 50k+ tiers earn the badge
+        };
+      });
+    }
+
+    function updateCountdown() {
+      const now = Date.now();
+      const pill = document.getElementById("countdown-pill");
+      const timeEl = document.getElementById("countdown-pill-time");
+      const labelEl = document.getElementById("countdown-pill-label");
+      if (!pill || !timeEl || !labelEl) return;
+
+      // T2: Ended
+      if (now > ACTIVITY_END_TS) {
+        labelEl.textContent = t("countdownEnded");
+        timeEl.textContent = "";
+        pill.classList.add("ended");
+        if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+        return;
+      }
+
+      // T1: Running (or pre-start — still counts down to END_TS regardless)
+      pill.classList.remove("ended");
+      labelEl.textContent = t("countdownLabel");
+
+      let diff = Math.floor((ACTIVITY_END_TS - now) / 1000);
+      if (diff < 0) diff = 0;
+      const d = Math.floor(diff / 86400); diff -= d * 86400;
+      const h = Math.floor(diff / 3600);  diff -= h * 3600;
+      const m = Math.floor(diff / 60);    diff -= m * 60;
+      const s = diff;
+      const pad = (n) => String(n).padStart(2, "0");
+
+      // Format: 2d 03h 45m 12s (omit days if 0)
+      const dUnit = t("countdownDays");
+      const hUnit = t("countdownHours");
+      const mUnit = t("countdownMins");
+      const sUnit = t("countdownSecs");
+      const parts = [];
+      if (d > 0) parts.push(`${d}${dUnit}`);
+      parts.push(`${pad(h)}${hUnit}`);
+      parts.push(`${pad(m)}${mUnit}`);
+      parts.push(`${pad(s)}${sUnit}`);
+      timeEl.textContent = parts.join(" ");
+    }
+    function startCountdown() {
+      updateCountdown();
+      if (countdownTimer) clearInterval(countdownTimer);
+      countdownTimer = setInterval(updateCountdown, 1000);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Language
+    ═══════════════════════════════════════════════════ */
+    function setLang(lang) {
+      currentLang = lang;
+      document.querySelectorAll(".lang-btn").forEach(b => {
+        b.classList.toggle("active", b.dataset.lang === lang);
+      });
+      applyLangStatic();
+      if (apiData) renderAll(apiData);
+      // If badge modal is open, refresh its text
+      const badgeScrim = document.getElementById("badge-modal-scrim");
+      if (badgeScrim && badgeScrim.classList.contains("open")) openBadgeModal();
+      // If rules modal is open, refresh its text
+      const rulesScrim = document.getElementById("rules-modal-scrim");
+      if (rulesScrim && rulesScrim.classList.contains("open")) openRulesModal();
+    }
+
+    function applyLangStatic() {
+      document.getElementById("header-title").textContent   = t("activityName");
+      document.getElementById("game1-tag").textContent      = t("game1");
+      document.getElementById("game2-tag").textContent      = t("game2");
+      document.getElementById("game3-tag").textContent      = t("game3");
+
+      // Game image src + alt (only set src once to avoid re-downloading on lang switch)
+      const setGameImg = (id, src, alt) => {
+        const img = document.getElementById(id);
+        if (!img) return;
+        if (!img.src) img.src = src;
+        img.alt = alt;
+      };
+      setGameImg("game1-img", GAME_IMAGES.game1, t("game1"));
+      setGameImg("game2-img", GAME_IMAGES.game2, t("game2"));
+      setGameImg("game3-img", GAME_IMAGES.game3, t("game3"));
+      document.getElementById("label-summary-section").textContent  = t("achievementSection");
+      document.getElementById("label-badge-section").textContent    = t("statusSection");
+      document.getElementById("label-records-section").textContent  = t("recordsSection");
+      document.getElementById("label-notice").textContent   = t("noticeSection");
+      renderRulesTable();
+      renderRulesNotes();
+      renderNoticeList();
+
+      updateCountdown();  // refresh countdown pill text immediately if lang changed
+
+      // CTA
+      document.getElementById("cta-play-now-text").textContent = t("ctaPlayNow");
+
+      const day = getCurrentActivityDay();
+      document.getElementById("day-label").textContent = t("dayShort", { n: day });
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Render: Today Card
+    ═══════════════════════════════════════════════════ */
+    /* ═══════════════════════════════════════════════════
+       Render: ⭐ Hero Rebate Card (Main conversion point)
+    ═══════════════════════════════════════════════════ */
+    const PLAY_URL = "https://swag.live/livestream/0?campaign-id=open-game-menu";
+
+    /** Render a compact tier row used in prelaunch / no-bet preview. */
+    function renderTierMiniRow(row, opts = {}) {
+      const meta = TIER_META[row.tier];
+      const tierName = meta.label[currentLang] || meta.label["zh-TW"];
+      const dm = t("diamond");
+      const detail = opts.showExample
+        ? t("heroNoBetTierExample", {
+            bet:    fmtNum(row.exampleBet) + " " + dm,
+            rebate: `<span class="rebate-num">${esc(fmtNum(row.exampleRebate))} ${esc(dm)}</span>`,
+          })
+        : t("prelaunchTierThreshold", { n: fmtNum(row.exampleBet) }) +
+          ` · <span class="rebate-num">${(row.rate * 100).toFixed(1)}%</span>`;
+      const badgeMark = row.isBadge
+        ? `<span class="tier-mini-badge-mark">${esc(t("heroNoBetTierBadge"))}</span>`
+        : "";
+      return `
+        <div class="tier-mini-row">
+          <span class="tier-mini-icon ${esc(meta.color)}">${esc(meta.icon)}</span>
+          <span class="tier-mini-name ${esc(meta.color)}">${esc(tierName)}</span>
+          <span class="tier-mini-detail">${detail}${badgeMark}</span>
+        </div>
+      `;
+    }
+
+    /** Render tier preview block (title + rows + cap note). */
+    function renderTierPreviewBlock(titleKey, showExample) {
+      const rows = getTierPreviewRows();
+      const rowsHtml = rows.map(r => renderTierMiniRow(r, { showExample })).join("");
+      return `
+        <div class="hero-tier-preview-title">${esc(t(titleKey))}</div>
+        ${rowsHtml}
+        <div class="tier-mini-cap-note">${esc(t("heroNoBetTierCapNote"))}</div>
+      `;
+    }
+
+    /**
+     * T2: Final summary card (activity ended).
+     */
+    function renderFinalSummary(data) {
+      const el = document.getElementById("hero-final-summary");
+      const totalBet    = data.total_bet_cumulative || 0;
+      const totalRebate = data.total_rebate || 0;
+      const isOldBadge  = resolveIsOldBadgeHolder(data);
+      const justEarned  = !!data.is_badge_earned;
+      const hasBadge    = isOldBadge || justEarned;
+
+      el.innerHTML = `
+        <div class="final-summary-title">${esc(t("finalSummaryTitle"))}</div>
+
+        <div class="final-summary-stat">
+          <div class="final-summary-stat-label">${esc(t("finalSummaryTotalBet"))}</div>
+          <div class="final-summary-stat-value bet">${esc(fmtNum(totalBet))} ${esc(t("diamond"))}</div>
+        </div>
+
+        <div class="final-summary-stat">
+          <div class="final-summary-stat-label">${esc(t("finalSummaryTotalRebate"))}</div>
+          <div class="final-summary-stat-value rebate">${esc(fmtNum(totalRebate))} ${esc(t("diamond"))}</div>
+        </div>
+
+        <div class="final-summary-badge ${hasBadge ? "earned" : "missed"}">
+          ${hasBadge ? esc(t("finalSummaryBadgeYes")) : esc(t("finalSummaryBadgeNo"))}
+        </div>
+
+        <button class="final-summary-rules-cta" id="final-summary-rules-btn" type="button">
+          <span>${esc(t("rulesCta"))}</span>
+        </button>
+
+        <div class="final-summary-closing">${esc(t("finalSummaryClosingNote"))}</div>
+      `;
+      const rulesBtn = document.getElementById("final-summary-rules-btn");
+      if (rulesBtn) rulesBtn.addEventListener("click", openRulesModal);
+    }
+
+    function renderHero(today) {
+      const card      = document.getElementById("hero-card");
+      const noBet     = document.getElementById("hero-no-bet");
+      const finalEl   = document.getElementById("hero-final-summary");
+      const phase     = getActivityPhase();
+
+      // ── T2: Ended ─────────────────────────────────────
+      if (phase === "ended") {
+        card.classList.add("hidden");
+        noBet.classList.add("hidden");
+        finalEl.classList.remove("hidden");
+        renderFinalSummary(apiData || {});
+        document.body.classList.add("hide-fixed-cta");
+        return;
+      }
+
+      // ── T1: Running ───────────────────────────────────
+      finalEl.classList.add("hidden");
+      document.body.classList.remove("hide-fixed-cta");
+
+      // U0/U3: No bet today
+      if (!today || (today.daily_bet || 0) === 0) {
+        card.classList.add("hidden");
+        noBet.classList.remove("hidden");
+
+        // P2-1: differentiate sub for old-badge holders
+        const oldBadgeHolder = resolveIsOldBadgeHolder(apiData);
+        document.getElementById("hero-no-bet-title").textContent      = t("heroNoBet");
+        document.getElementById("hero-no-bet-sub").textContent        =
+          oldBadgeHolder ? t("heroNoBetSubOldBadge") : t("heroNoBetSub");
+        document.getElementById("hero-no-bet-rules-text").textContent = t("heroNoBetRulesLink");
+        document.getElementById("hero-no-bet-cta-text").textContent   = t("heroCtaStart");
+
+        // Tier preview (definite "bet X → earn Y")
+        const previewEl = document.getElementById("hero-no-bet-tier-preview");
+        if (previewEl) {
+          previewEl.innerHTML = renderTierPreviewBlock("heroNoBetTierTitle", true);
+        }
+
+        // Wire rules link → open rules modal
+        const rulesBtn = document.getElementById("hero-no-bet-rules-btn");
+        if (rulesBtn) {
+          rulesBtn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openRulesModal();
+          };
+        }
+        return;
+      }
+
+      noBet.classList.add("hidden");
+      card.classList.remove("hidden");
+
+      const tier       = today.user_level || "none";
+      const meta       = TIER_META[tier] || TIER_META.none;
+      const prog       = tierProgress(tier, today.daily_bet || 0);
+      const nextEst    = nextTierEstimate(tier, today.daily_bet || 0);
+      const isCapped   = (today.daily_rebate_amount || 0) >= DAILY_REBATE_CAP;
+      const bonusOn    = !!today.is_daily_bonus_triggered;
+      const isOldBadge = !!today.is_old_badge_holder;
+      const updatedAt  = today.calculated_at || "";
+      const rebateAmt  = today.daily_rebate_amount || 0;
+
+      // Tier-info "name row" content
+      const tierName = meta.label[currentLang] || meta.label["zh-TW"];
+      const rateStr = today.final_rebate_rate
+        ? (today.final_rebate_rate * 100).toFixed(1) + "%"
+        : meta.rate;
+
+      // Gap-line: differ between current=max vs has-next-tier
+      let gapLineHtml = "";
+      if (nextEst.isMax) {
+        gapLineHtml = `<div class="gap-line">${esc(t("nextTierAtMax"))}</div>`;
+      } else if (nextEst.gap > 0) {
+        const nextMeta  = TIER_META[nextEst.nextLevel];
+        const nextLabel = nextMeta.label[currentLang] || nextMeta.label["zh-TW"];
+        const nextRateStr = (nextEst.rate * 100).toFixed(1) + "%";
+        const tierLine = t("nextTierEstimate", {
+          gap:   `<span class="gap-amount">${esc(fmtNum(nextEst.gap))} ${esc(t("diamond"))}</span>`,
+          unit:  "",
+          tier:  `${esc(nextMeta.icon)} <span style="color:var(--tier-${esc(nextMeta.color)}-color)">${esc(nextLabel)}</span>`,
+          rate:  `<span class="rate-pill" style="margin-left:4px">${esc(nextRateStr)}</span>`,
+        }).replace(/\s+→/, " →");  // tidy spacing
+        const maxRebateLine = t("nextTierMaxRebate", { n: fmtNum(nextEst.estMax) });
+        gapLineHtml = `
+          <div class="gap-line">${tierLine}</div>
+          <div class="gap-line" style="margin-top:2px"><span class="max-rebate">${esc(maxRebateLine)}</span></div>
+        `;
+      }
+
+      // Bonus banner
+      const bonusHtml = bonusOn
+        ? `<div class="hero-bonus-banner">⚡ ${esc(t("bonusActiveBanner"))}</div>`
+        : `<div class="hero-bonus-pending">
+             <span>${esc(t("bonusPendingLabel"))} · ${esc(t("bonusPendingHint"))}</span>
+             <span class="count">${esc(t("bonusParticipants", { n: fmtNum(today.daily_participant_count || 0) }))}</span>
+           </div>`;
+
+      // CTA text: depends on tier & cap state
+      let ctaText;
+      if (isCapped) {
+        // Already maxed out today's rebate cap.
+        const cumulative = (apiData && apiData.total_bet_cumulative) || 0;
+        const stillNeedsBadge = !resolveIsOldBadgeHolder(apiData) && cumulative < BADGE_THRESHOLD;
+        ctaText = stillNeedsBadge ? t("heroCtaToBadge") : t("heroCtaTomorrow");
+      } else if (nextEst.isMax) {
+        ctaText = t("heroCtaMax");
+      } else {
+        ctaText = t("heroCtaUpgrade");
+      }
+
+      // Cap-reached payout note (shown only when capped)
+      const capPayoutNoteHtml = isCapped
+        ? `<div class="hero-cap-payout-note">${esc(t("capReachedHero"))}</div>`
+        : "";
+
+      card.innerHTML = `
+        <div class="hero-top-row">
+          <div class="hero-eyebrow">${esc(t("heroEyebrow"))}</div>
+          <div class="hero-action-row">
+            <button class="rules-cta-btn" id="hero-rules-btn" aria-label="${esc(t("rulesCta"))}" title="${esc(t("rulesCta"))}">
+              <span aria-hidden="true">📖</span><span>${esc(t("rulesCta"))}</span>
+            </button>
+            ${updatedAt ? `
+              <span class="chip-sep" aria-hidden="true">·</span>
+              <span class="updated-text" id="hero-updated-text">${esc(t("updatedAt", { n: relativeTimeFromNow(updatedAt) }))}</span>
+              <button class="refresh-btn" id="hero-refresh-btn" aria-label="${esc(t("refreshTip"))}" title="${esc(t("refreshTip"))}">⟳</button>
+            ` : ""}
+          </div>
+        </div>
+
+        <div class="hero-amount-wrap">
+          <div class="hero-amount ${isCapped ? "capped" : ""}">
+            <span>${esc(fmtNum(rebateAmt))}</span>
+            <span class="diamond-icon">💎</span>
+          </div>
+          ${isCapped ? `<div class="hero-cap-note">${esc(t("capNote"))}</div>` : ""}
+        </div>
+
+        <div class="hero-tier-row">
+          <div class="hero-tier-icon-wrap ${esc(meta.color)}">${esc(meta.icon)}</div>
+          <div class="hero-tier-info">
+            <div class="name-row">
+              <span style="color:var(--tier-${esc(meta.color)}-color)">${esc(tierName)}</span>
+              <span class="rate-pill">${esc(rateStr)}</span>
+              ${bonusOn ? `<span class="bonus-tag">+0.5%</span>` : ""}
+              ${isOldBadge ? `<span class="hero-tier-old-chip">${esc(t("oldBadgeChip"))}</span>` : ""}
+            </div>
+            ${gapLineHtml}
+          </div>
+        </div>
+
+        <div class="hero-progress">
+          <div class="progress-track">
+            <div class="progress-fill ${prog.isMax ? "maxed" : esc(meta.color)}" style="width:${prog.pct.toFixed(1)}%"></div>
+          </div>
+          <div class="progress-nums">
+            <span>${esc(fmtNum(today.daily_bet || 0))} ${esc(t("diamond"))}</span>
+            <span>${prog.pct.toFixed(0)}%</span>
+          </div>
+        </div>
+
+        ${capPayoutNoteHtml}
+
+        ${bonusHtml}
+
+        <a class="hero-cta-btn" id="hero-cta-link"
+           href="${esc(PLAY_URL)}"
+           target="_blank" rel="noopener noreferrer">
+          <span>${esc(ctaText)}</span>
+        </a>
+      `;
+
+      // Refresh button handler
+      const refreshBtn = document.getElementById("hero-refresh-btn");
+      if (refreshBtn) {
+        refreshBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (!token || refreshBtn.classList.contains("spinning")) return;
+          refreshBtn.classList.add("spinning");
+          fetchStatus(token).finally(() => {
+            setTimeout(() => refreshBtn.classList.remove("spinning"), 400);
+          });
+        });
+      }
+
+      // Rules CTA button → open rules modal
+      const rulesBtn = document.getElementById("hero-rules-btn");
+      if (rulesBtn) {
+        rulesBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          openRulesModal();
+        });
+      }
+    }
+
+    // Backward-compat alias (old code may still reference this)
+    function renderTodayCard(today) { renderHero(today); }
+
+    /* ═══════════════════════════════════════════════════
+       Render: 📊 Status Card (secondary three-cell)
+    ═══════════════════════════════════════════════════ */
+    function renderStatus(data) {
+      const skel = document.getElementById("skeleton-summary");
+      const el   = document.getElementById("status-card");
+      if (skel) skel.classList.add("hidden");
+      el.classList.remove("hidden");
+
+      const today        = data.today || {};
+      const dailyBet     = today.daily_bet || 0;
+      const dailyRank    = today.daily_rank || 0;
+      const settledDays  = data.settled_days || 0;
+      const totalDays    = 3;
+      const hasBetToday  = dailyBet > 0;
+      const daysJoined   = Math.min(totalDays, settledDays + (hasBetToday ? 1 : 0));
+
+      el.innerHTML = `
+        <div class="status-cell">
+          <div class="status-cell-label">${esc(t("statusBet"))}</div>
+          <div class="status-cell-value">${esc(fmtNum(dailyBet))}<span class="unit-small">${esc(t("diamond"))}</span></div>
+        </div>
+        <div class="status-cell">
+          <div class="status-cell-label">${esc(t("statusRank"))}</div>
+          <div class="status-cell-value">${dailyRank > 0 ? esc(fmtNum(dailyRank)) + esc(t("rank_unit")) : "—"}</div>
+        </div>
+        <div class="status-cell">
+          <div class="status-cell-label">${esc(t("statusDays"))}</div>
+          <div class="status-cell-value">${esc(t("summaryDaysFmt", { n: daysJoined, total: totalDays }))}</div>
+        </div>
+      `;
+    }
+    // Backward-compat alias
+    function renderSummaryCard(data) { renderStatus(data); }
+
+    /* ═══════════════════════════════════════════════════
+       Render: Badge Card
+    ═══════════════════════════════════════════════════ */
+    /* ═══════════════════════════════════════════════════
+       Render: 🏆 Achievement Card (Badge + Cumulative merged)
+
+       Status logic (3 states):
+         A "locked":  !is_old_badge_holder && !is_badge_earned
+         B "earned":  !is_old_badge_holder &&  is_badge_earned   (just achieved this campaign)
+         C "owned":    is_old_badge_holder                       (long-time holder)
+
+       Data source caveat (important!):
+         The BFF response does NOT expose `is_old_badge_holder` at the top level —
+         only inside `today` and each `records[i]`. We must aggregate across both.
+         A user who is an old-badge holder but hasn't bet today still has
+         `is_old_badge_holder=true` in their settled records.
+    ═══════════════════════════════════════════════════ */
+
+    /** Resolve "is old badge holder" by scanning today + records. */
+    function resolveIsOldBadgeHolder(data) {
+      if (!data) return false;
+      if (data.today && data.today.is_old_badge_holder) return true;
+      if (Array.isArray(data.records)) {
+        for (const r of data.records) {
+          if (r && r.is_old_badge_holder) return true;
+        }
+      }
+      return false;
+    }
+
+    function renderAchievement(data) {
+      const el = document.getElementById("achievement-card");
+      el.classList.remove("hidden");
+
+      const isOldBadge = resolveIsOldBadgeHolder(data);
+      const justEarned = !!data.is_badge_earned;
+      const cumulative = data.total_bet_cumulative || 0;
+      const totalRebate = data.total_rebate || 0;
+      const pct = Math.min(100, (cumulative / BADGE_THRESHOLD) * 100);
+
+      // Resolve state
+      let state;
+      if (isOldBadge) {
+        state = "owned";              // C / D
+      } else if (justEarned) {
+        state = "earned";             // B
+      } else {
+        state = "locked";             // A
+      }
+
+      // Status chip + sub line + progress class
+      let chipText, subText, subClass, progressFillClass;
+      switch (state) {
+        case "owned":
+          chipText = t("achievementOwnedChip");
+          subText  = t("achievementOwnedSub");
+          subClass = "owned";
+          progressFillClass = "maxed";  // gold→gradient look even if cumulative < threshold
+          break;
+        case "earned":
+          chipText = t("achievementEarnedChip");
+          subText  = t("achievementEarnedSub");
+          subClass = "earned";
+          progressFillClass = "maxed";  // green gradient for just-earned milestone
+          break;
+        default:  // locked
+          chipText = t("achievementLockedChip");
+          subText  = t("achievementUnlock");
+          subClass = "";
+          progressFillClass = "";       // default gold gradient
+      }
+
+      // Make whole card clickable -> open badge modal
+      el.setAttribute("role", "button");
+      el.setAttribute("tabindex", "0");
+      el.setAttribute("aria-label", t("badgeSection"));
+      el.onclick = openBadgeModal;
+      el.onkeydown = (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openBadgeModal(); }
+      };
+
+      // Progress label gets a "not required" tag for owned state
+      const progressLabelHtml = state === "owned"
+        ? `${esc(t("achievementCumulativeBet"))}<span class="achievement-not-required">${esc(t("achievementNotRequired"))}</span>`
+        : esc(t("achievementCumulativeBet"));
+
+      // For owned/earned states, cap displayed progress at 100% visually
+      const displayCumulative = Math.min(cumulative, BADGE_THRESHOLD);
+      const displayPct = (state === "owned" || state === "earned") ? 100 : pct;
+
+      el.innerHTML = `
+        <div class="achievement-head">
+          <div class="achievement-badge-wrap">
+            <img src="${esc(BADGE_SVG_URL)}"
+                 alt="${esc(t("badgeSection"))}"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <span class="achievement-badge-fallback" style="display:none">🏆</span>
+          </div>
+          <div class="achievement-text">
+            <div class="achievement-name">
+              <span>${esc(t("badgeSection"))}</span>
+              <span class="achievement-status-chip ${esc(state)}">${esc(chipText)}</span>
+            </div>
+            <div class="achievement-sub ${esc(subClass)}">
+              ${esc(subText)}
+            </div>
+          </div>
+          <div class="achievement-arrow" aria-hidden="true">›</div>
+        </div>
+
+        <div class="achievement-stats">
+          <div class="achievement-stat-row">
+            <div class="achievement-stat-label-row">
+              <span class="achievement-stat-label">${progressLabelHtml}</span>
+              <span class="achievement-stat-value">
+                ${esc(fmtNum(displayCumulative))} / ${esc(fmtNum(BADGE_THRESHOLD))} ${esc(t("diamond"))}
+              </span>
+            </div>
+            <div class="achievement-progress-track">
+              <div class="achievement-progress-fill ${esc(progressFillClass)}" style="width:${displayPct.toFixed(1)}%"></div>
+            </div>
+          </div>
+
+          <div class="achievement-divider"></div>
+
+          <div class="achievement-stat-row">
+            <div class="achievement-stat-label-row">
+              <span class="achievement-stat-label">${esc(t("achievementCumulativeRebate"))}</span>
+              <span class="achievement-stat-value teal">
+                ${esc(fmtNum(totalRebate))} ${esc(t("diamond"))}
+              </span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    // Backward-compat alias
+    function renderBadgeCard(data) { renderAchievement(data); }
+
+    /* ═══════════════════════════════════════════════════
+       Badge Modal (Anime-style)
+    ═══════════════════════════════════════════════════ */
+    function openBadgeModal() {
+      const scrim = document.getElementById("badge-modal-scrim");
+      const hero  = document.getElementById("badge-modal-hero");
+      const data  = apiData || {};
+      const isOldBadge = resolveIsOldBadgeHolder(data);
+      const justEarned = !!data.is_badge_earned;
+      const cumulative = data.total_bet_cumulative || 0;
+      const pct        = Math.min(100, (cumulative / BADGE_THRESHOLD) * 100);
+
+      // Resolve 3-state (consistent with renderAchievement)
+      let state;
+      if (isOldBadge) state = "owned";
+      else if (justEarned) state = "earned";
+      else state = "locked";
+
+      // Per spec: badge artwork always rendered in earned (full color + halo) style.
+      hero.className = "badge-modal-hero";
+      hero.innerHTML = `
+        <img src="${esc(BADGE_SVG_URL)}"
+             alt="${esc(t("badgeModalTitle"))}"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+        <span class="badge-modal-fallback" style="display:none">🏆</span>
+      `;
+
+      // Title & section labels
+      document.getElementById("badge-modal-title").textContent      = t("badgeModalTitle");
+      document.getElementById("badge-modal-how-label").textContent  = t("badgeModalHowLabel");
+      document.getElementById("badge-modal-how-body").textContent   = t("badgeModalHow");
+      document.getElementById("badge-modal-progress-label").textContent = t("badgeModalProgress");
+
+      // Status pill (3-state)
+      const statusEl   = document.getElementById("badge-modal-status");
+      const statusText = document.getElementById("badge-modal-status-text");
+      // Clear previous state classes
+      statusEl.classList.remove("owned", "earned", "locked");
+      statusEl.classList.add(state);
+      switch (state) {
+        case "owned":  statusText.textContent = t("achievementOwnedChip"); break;
+        case "earned": statusText.textContent = t("achievementEarnedChip"); break;
+        default:       statusText.textContent = t("achievementLockedChip");
+      }
+
+      // Progress (display logic mirrors achievement card)
+      const displayCumulative = Math.min(cumulative, BADGE_THRESHOLD);
+      const displayPct = (state === "owned" || state === "earned") ? 100 : pct;
+      document.getElementById("badge-modal-progress-current").textContent = fmtNum(displayCumulative);
+      document.getElementById("badge-modal-progress-threshold").textContent =
+        "/ " + fmtNum(BADGE_THRESHOLD) + " " + t("diamond");
+      const fillEl = document.getElementById("badge-modal-progress-fill");
+      fillEl.style.width = displayPct.toFixed(1) + "%";
+
+      // Open
+      scrim.classList.add("open");
+      scrim.setAttribute("aria-hidden", "false");
+      document.body.classList.add("modal-open");
+    }
+
+    function closeBadgeModal() {
+      const scrim = document.getElementById("badge-modal-scrim");
+      scrim.classList.remove("open");
+      scrim.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("modal-open");
+    }
+
+    // Modal close handlers
+    document.addEventListener("DOMContentLoaded", () => {
+      // Badge Modal
+      document.getElementById("badge-modal-close").addEventListener("click", closeBadgeModal);
+      document.getElementById("badge-modal-scrim").addEventListener("click", (e) => {
+        if (e.target.id === "badge-modal-scrim") closeBadgeModal();
+      });
+
+      // Rules Modal
+      document.getElementById("rules-modal-close").addEventListener("click", closeRulesModal);
+      document.getElementById("rules-modal-scrim").addEventListener("click", (e) => {
+        if (e.target.id === "rules-modal-scrim") closeRulesModal();
+      });
+
+      // ESC closes whichever modal is open (front-most first; both can't be open simultaneously in practice)
+      document.addEventListener("keydown", (e) => {
+        if (e.key !== "Escape") return;
+        const rulesScrim = document.getElementById("rules-modal-scrim");
+        const badgeScrim = document.getElementById("badge-modal-scrim");
+        if (rulesScrim && rulesScrim.classList.contains("open")) {
+          closeRulesModal();
+        } else if (badgeScrim && badgeScrim.classList.contains("open")) {
+          closeBadgeModal();
+        }
+      });
+    });
+
+    /* ═══════════════════════════════════════════════════
+       Render: Settled Records
+    ═══════════════════════════════════════════════════ */
+    function renderRecords(records, totalRebate) {
+      const section = document.getElementById("section-records");
+      const content = document.getElementById("records-content");
+      const noRec   = document.getElementById("no-records");
+      const chip    = document.getElementById("total-rebate-chip");
+
+      // Per spec: if no settled records, hide the entire section.
+      if (!records || records.length === 0) {
+        section.classList.add("hidden");
+        return;
+      }
+
+      // Has data → show section
+      section.classList.remove("hidden");
+      noRec.classList.add("hidden");
+      content.classList.remove("hidden");
+
+      if (totalRebate > 0) {
+        chip.style.display = "";
+        chip.textContent = t("totalRebate", { n: fmtNum(totalRebate) });
+      }
+
+      content.innerHTML = records.map((rec, idx) => {
+        const tier     = rec.user_level || "none";
+        const meta     = TIER_META[tier] || TIER_META.none;
+        const dayNum   = getDayNum(rec.bet_date);
+        const dateDisp = formatDisplayDate(rec.bet_date);
+        const isCapped = (rec.daily_rebate_amount || 0) >= 10000;
+        const bonusOn  = !!rec.is_daily_bonus_triggered;
+        const isOldBadge = !!rec.is_old_badge_holder;
+
+        return `
+          <div class="record-card" style="animation-delay:${idx * 0.07}s">
+            <div class="record-header">
+              <div class="record-date">${esc(t("day", { n: dayNum }))} · ${esc(dateDisp)}</div>
+              <div class="record-tier-chip ${esc(meta.color)}">
+                ${esc(meta.icon)} ${esc(meta.label[currentLang] || meta.label["zh-TW"])}
+                ${isOldBadge ? `<span class="tier-old-chip" style="margin-left:4px">${esc(t("oldBadgeChip"))}</span>` : ""}
+              </div>
+            </div>
+            <div class="record-stats">
+              <div class="record-stat">
+                <div class="record-stat-label">${esc(t("dailyBet"))}</div>
+                <div class="record-stat-value">${esc(fmtNum(rec.daily_bet || 0))}</div>
+              </div>
+              <div class="record-stat">
+                <div class="record-stat-label">${esc(t("rate"))}</div>
+                <div class="record-stat-value teal">${rec.final_rebate_rate ? (rec.final_rebate_rate * 100).toFixed(1) + "%" : "—"}</div>
+              </div>
+              <div class="record-stat">
+                <div class="record-stat-label">${esc(t("settledRebate"))}</div>
+                <div class="record-stat-value teal">
+                  ${esc(fmtNum(rec.daily_rebate_amount || 0))}
+                  ${isCapped ? `<span style="font-size:10px;color:var(--tier-gold-color);margin-left:2px">▲</span>` : ""}
+                </div>
+              </div>
+              <div class="record-stat">
+                <div class="record-stat-label">${esc(t("rank"))}</div>
+                <div class="record-stat-value">${rec.daily_rank ? esc(fmtNum(rec.daily_rank)) + esc(t("rank_unit")) : "—"}</div>
+              </div>
+            </div>
+            ${bonusOn ? `<div class="record-bonus-tag">⚡ ${esc(t("bonusActiveBanner").replace(/^✨\s*/, ""))}</div>` : ""}
+            ${isOldBadge ? `<div class="record-old-badge-tag">${esc(t("oldBadgeRecordTag"))}</div>` : ""}
+          </div>
+        `;
+      }).join("");
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Render: Rules
+    ═══════════════════════════════════════════════════ */
+    function renderRulesTable() {
+      const tiers = [
+        { tier: "bronze",  threshold: "1,000",   rate: "1.0%", cap: "10,000" },
+        { tier: "silver",  threshold: "10,000",  rate: "1.5%", cap: "10,000" },
+        { tier: "gold",    threshold: "50,000",  rate: "2.0%", cap: "10,000" },
+        { tier: "diamond", threshold: "200,000", rate: "2.5%", cap: "10,000" },
+      ];
+      const table = document.getElementById("rules-modal-tier-table");
+      if (!table) return;
+      const dm = t("diamond");
+
+      // Determine current tier from today's data (fallback to "none")
+      const currentTier = (apiData && apiData.today && apiData.today.user_level) || "none";
+      const youHereLabel = t("rulesCurrentTier");
+
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th>${esc(t("tierLabel"))}</th>
+            <th>${esc(t("tierThreshold"))}</th>
+            <th>${esc(t("tierRate"))}</th>
+            <th>${esc(t("tierCap"))}</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tiers.map(row => {
+            const meta = TIER_META[row.tier];
+            const isCurrent = row.tier === currentTier;
+            return `<tr class="${isCurrent ? "current-tier" : ""}">
+              <td><div class="tier-cell" style="color:var(--tier-${esc(row.tier)}-color)">
+                ${esc(meta.icon)} ${esc(meta.label[currentLang] || meta.label["zh-TW"])}
+                ${isCurrent ? `<span class="current-tier-chip">${esc(youHereLabel)}</span>` : ""}
+              </div></td>
+              <td>${esc(row.threshold)} ${esc(dm)}</td>
+              <td style="color:var(--color-primary);font-weight:600">${esc(row.rate)}</td>
+              <td>${esc(row.cap)} ${esc(dm)}</td>
+            </tr>`;
+          }).join("")}
+        </tbody>
+      `;
+    }
+
+    function renderRulesNotes() {
+      const badgeEl = document.getElementById("rules-modal-badge-note");
+      const bonusEl = document.getElementById("rules-modal-bonus-note");
+      if (badgeEl) {
+        badgeEl.innerHTML = `
+          <div class="rules-note"><span class="rules-highlight">${esc(t("rulesBadgeNote1"))}</span></div>
+          <div class="rules-note">${esc(t("rulesBadgeNote2"))}</div>
+        `;
+      }
+      if (bonusEl) {
+        bonusEl.innerHTML = `
+          <div class="rules-note">${esc(t("rulesBonusNote1"))}</div>
+          <div class="rules-note">${esc(t("rulesBonusNote2"))}</div>
+          <div class="rules-note">${esc(t("rulesBonusNote3"))}</div>
+        `;
+      }
+    }
+
+    function openRulesModal() {
+      const scrim = document.getElementById("rules-modal-scrim");
+
+      // Set Modal i18n titles
+      document.getElementById("rules-modal-title").textContent       = t("rulesCta");
+      document.getElementById("rules-modal-tier-title").textContent  = t("rulesTier");
+      document.getElementById("rules-modal-badge-title").textContent = t("rulesBadge");
+      document.getElementById("rules-modal-bonus-title").textContent = t("rulesBonus");
+
+      // Refresh table + notes (so current-tier highlight & i18n stay in sync)
+      renderRulesTable();
+      renderRulesNotes();
+
+      // Open
+      scrim.classList.add("open");
+      scrim.setAttribute("aria-hidden", "false");
+      document.body.classList.add("modal-open");
+    }
+
+    function closeRulesModal() {
+      const scrim = document.getElementById("rules-modal-scrim");
+      scrim.classList.remove("open");
+      scrim.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("modal-open");
+    }
+
+    // toggleRules() kept for backward compat (no longer used since collapse removed).
+    // Safe no-op, in case any cached onclick references remain.
+    function toggleRules() { /* deprecated: rules now in modal */ }
+
+    function toggleNotice() {
+      const body  = document.getElementById("notice-body");
+      const arrow = document.getElementById("notice-arrow");
+      const open  = body.classList.toggle("open");
+      arrow.classList.toggle("open", open);
+    }
+
+    function renderNoticeList() {
+      const ol = document.getElementById("notice-list");
+      const keys = ["notice1","notice2","notice3","notice4","notice5",
+                    "notice6","notice7","notice8","notice9"];
+      ol.innerHTML = keys.map(k => `<li>${esc(t(k))}</li>`).join("");
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Render All (after data arrives)
+    ═══════════════════════════════════════════════════ */
+    function renderAll(data) {
+      apiData = data;
+
+      // Hide all skeletons (records section starts hidden by default — no skeleton needed)
+      const hideSkel = (id) => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add("hidden");
+      };
+      hideSkel("skeleton-hero");
+      hideSkel("skeleton-summary");
+      hideSkel("skeleton-badge");
+
+      // Render Hero first (it figures out phase & shows the right card)
+      renderHero(data.today);
+
+      // T2: hide status (today's stats are stale), keep achievement (badge result is meaningful)
+      const phase = getActivityPhase();
+      const statusSection      = document.getElementById("section-status");
+      const achievementSection = document.getElementById("section-achievement");
+      if (phase === "ended") {
+        statusSection.classList.add("hidden");
+        achievementSection.classList.remove("hidden");
+        renderAchievement(data);
+      } else {
+        // T1 (running): show both
+        statusSection.classList.remove("hidden");
+        achievementSection.classList.remove("hidden");
+        renderStatus(data);
+        renderAchievement(data);
+      }
+
+      renderRecords(data.records, data.total_rebate);
+
+      applyLangStatic();
+    }
+
+    /* ═══════════════════════════════════════════════════
+       API
+    ═══════════════════════════════════════════════════ */
+    async function fetchStatus(tok) {
+      const res = await fetch(`${API_BASE}/my-status`, {
+        headers: {
+          "Authorization": `Bearer ${tok}`,
+          "Content-Type":  "application/json",
+        }
+      });
+
+      if (!res.ok) {
+        handleApiError(res.status);
+        return;
+      }
+
+      const data = await res.json();
+      renderAll(data);
+    }
+
+    function handleApiError(status) {
+      const msgs = {
+        403: "您不符合本活動參與資格",
+        409: "您已完成此操作",
+        429: "請求過於頻繁，請稍後再試",
+        500: "系統暫時不穩定，請稍後重新整理",
+      };
+      const msg = msgs[status] || `Error ${status}`;
+
+      // Hide skeletons
+      ["skeleton-hero","skeleton-summary","skeleton-badge"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add("hidden");
+      });
+
+      // U4: 403 → not eligible. Hide bottom fixed CTA to avoid encouraging
+      // a user who won't earn rebate to keep gambling.
+      if (status === 403) {
+        document.body.classList.add("hide-fixed-cta");
+      }
+
+      // Show error message
+      const errDiv = document.createElement("div");
+      errDiv.style.cssText = "text-align:center;padding:40px 16px;color:var(--color-on-primary-3);font-size:14px;";
+      errDiv.textContent = msg;
+      const heroSection = document.getElementById("section-hero");
+      if (heroSection) heroSection.appendChild(errDiv);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       Dev Mode
+
+       To preview different states, append URL params:
+       - ?phase=running    → T1 normal flow (default)
+       - ?phase=ended      → T2 final summary
+
+       The MOCK_DATA below simulates a typical "running + bet placed" user.
+       Edit MOCK_DATA to simulate U0/U2/U3/U4 scenarios:
+       - U0 no-bet today:     set today: null
+       - U2 cap reached:      set today.daily_rebate_amount: 10000
+       - U3 old-badge no-bet: set today: null + records[i].is_old_badge_holder: true
+       - U4 not eligible:     call handleApiError(403) instead of renderAll
+    ═══════════════════════════════════════════════════ */
+
+    // SWAG Web fallback URL: opened when user can't get a token (outside iframe, or
+    // handshake times out). Adding action=login asks SWAG to auto-show login prompt.
+    const SWAG_LOGIN_URL = "https://swag.live/iframe/?source=https://events.swag.app/rebate_v2&title=iframe_viewer_header&action=login";
+
+    // Dev Mode = page opened directly on the developer's machine (file:// or localhost).
+    //   - file://       → local file double-clicked
+    //   - localhost     → local dev server
+    //   - 127.0.0.1     → local dev server (alt)
+    // Anything else opened outside an iframe is treated as "external access" by a
+    // real user (deep link, shared URL, etc.) and will be redirected to SWAG.
+    const isDevMode = (
+      window.self === window.top && (
+        window.location.protocol === "file:" ||
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1"
+      )
+    );
+
+    // External access = real user opened the page outside iframe (non-dev).
+    // Trigger immediate "device not supported" fallback (no need to wait 30s).
+    const isExternalAccess = (window.self === window.top) && !isDevMode;
+
+    const MOCK_DATA = {
+      today: {
+        bet_date: "2026-05-29",
+        daily_bet: 85000,
+        user_level: "gold",
+        is_old_badge_holder: false,
+        total_bet_cumulative: 165000,
+        final_rebate_rate: 0.025,
+        daily_rebate_amount: 2125,
+        is_badge_earned: true,
+        is_daily_bonus_triggered: true,
+        daily_participant_count: 1243,
+        daily_rank: 87,
+        last_play_time: "2026-05-29T10:30:00+08:00",
+        calculated_at: new Date(Date.now() - 3 * 60 * 1000).toISOString(),
+      },
+      records: [
+        {
+          bet_date: "2026-05-28",
+          daily_bet: 55000,
+          user_level: "gold",
+          is_old_badge_holder: false,
+          total_bet_cumulative: 80000,
+          final_rebate_rate: 0.020,
+          daily_rebate_amount: 1100,
+          is_badge_earned: false,
+          is_daily_bonus_triggered: false,
+          daily_participant_count: 987,
+          daily_rank: 112,
+          last_play_time: "2026-05-28T22:45:00+08:00",
+          calculated_at: "2026-05-29T00:05:00+08:00",
+        },
+        {
+          bet_date: "2026-05-27",
+          daily_bet: 25000,
+          user_level: "silver",
+          is_old_badge_holder: false,
+          total_bet_cumulative: 25000,
+          final_rebate_rate: 0.015,
+          daily_rebate_amount: 375,
+          is_badge_earned: false,
+          is_daily_bonus_triggered: false,
+          daily_participant_count: 876,
+          daily_rank: 203,
+          last_play_time: "2026-05-27T20:15:00+08:00",
+          calculated_at: "2026-05-28T00:05:00+08:00",
+        }
+      ],
+      settled_days: 2,
+      is_badge_earned: true,
+      total_bet_cumulative: 165000,
+      total_rebate: 1475,
+    };
+
+    if (isDevMode) {
+      // Dev Mode Banner
+      const banner = document.createElement("div");
+      banner.style.cssText = `
+        position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+        background: repeating-linear-gradient(
+          45deg, #ff0000, #ff0000 10px, #ffcc00 10px, #ffcc00 20px
+        );
+        color: #000; font-weight: 900; font-size: 14px;
+        padding: 10px 20px; text-align: center;
+        border-bottom: 3px solid #000;
+      `;
+      banner.textContent = "⚠️ 本地預覽模式 (Dev Mode) ─ 以下為假資料，非線上真實數據 ⚠️";
+      document.body.prepend(banner);
+
+      // Offset content for banner
+      document.querySelector(".page-content").style.marginTop = "8px";
+
+      // Load mock data after 2s
+      setTimeout(() => renderAll(MOCK_DATA), 2000);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       postMessage Protocol (SWAG Iframe)
+
+       Handshake strategy:
+       - Send IFRAME_READY + REQUEST_TOKEN immediately + at exponential intervals
+       - Show "still connecting…" hint after 3s
+       - Show "taking longer than usual" hint after 10s
+       - Show graceful degradation card after 30s
+       - Pause retries while page is hidden, resume when visible again
+       - Origin validation deferred to host site (per spec); only validate message shape
+    ═══════════════════════════════════════════════════ */
+
+    // Handshake retry schedule (cumulative ms from page load): exponential then linear
+    const HANDSHAKE_SCHEDULE = [100, 1000, 2500, 5000, 10000];
+    const HANDSHAKE_LINEAR_INTERVAL = 5000;   // after schedule exhausted, retry every 5s
+    const HANDSHAKE_SOFT_HINT_AT   = 3000;    // show "connecting…" hint
+    const HANDSHAKE_URGENT_HINT_AT = 10000;   // upgrade hint to "taking longer"
+    const HANDSHAKE_TIMEOUT_MS     = 30000;   // give up and show fallback
+
+    let handshakeStartTime = 0;
+    let handshakeTimers   = [];   // pending setTimeout ids
+    let handshakeLinear   = null; // setInterval id after schedule done
+    let handshakeFailed   = false;
+
+    function sendReady() {
+      try {
+        // Send both IFRAME_READY (standard) and REQUEST_TOKEN (for passive hosts like ramen)
+        window.parent.postMessage({ type: "IFRAME_READY" }, "*");
+        window.parent.postMessage({ type: "REQUEST_TOKEN" }, "*");
+      } catch (_) { /* may fail in same-origin sandbox; ignore */ }
+    }
+
+    function showConnectingHint(level) {
+      const el = document.getElementById("connecting-hint");
+      const textEl = document.getElementById("connecting-hint-text");
+      if (!el || !textEl) return;
+      el.classList.remove("hidden");
+      if (level === "urgent") {
+        el.classList.add("urgent");
+        textEl.textContent = t("connectingSlow");
+      } else {
+        el.classList.remove("urgent");
+        textEl.textContent = t("connectingHint");
+      }
+    }
+    function hideConnectingHint() {
+      const el = document.getElementById("connecting-hint");
+      if (el) el.classList.add("hidden");
+    }
+
+    function showConnectionFailed() {
+      handshakeFailed = true;
+      stopHandshakeRetries();
+      hideConnectingHint();
+      // Hide skeleton + all hero states; show only failure card
+      ["skeleton-hero", "hero-card", "hero-no-bet", "hero-final-summary"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add("hidden");
+      });
+      const failEl = document.getElementById("hero-connection-failed");
+      if (failEl) failEl.classList.remove("hidden");
+      // Apply i18n texts
+      document.getElementById("connection-failed-title").textContent = t("connectionFailedTitle");
+      document.getElementById("connection-failed-sub").textContent   = t("connectionFailedSub");
+      document.getElementById("connection-retry-text").textContent   = t("connectionRetryBtn");
+      document.getElementById("connection-rules-text").textContent   = t("connectionRulesBtn");
+      // Also hide the bottom CTA — without a token, "go play" implies token-protected flow
+      document.body.classList.add("hide-fixed-cta");
+    }
+
+    function startHandshakeRetries() {
+      stopHandshakeRetries();
+      handshakeStartTime = Date.now();
+      handshakeFailed = false;
+
+      // Schedule the exponential retries
+      HANDSHAKE_SCHEDULE.forEach(delay => {
+        const tid = setTimeout(() => {
+          if (token || handshakeFailed) return;
+          sendReady();
+        }, delay);
+        handshakeTimers.push(tid);
+      });
+
+      // After last scheduled retry, fall back to linear interval
+      const lastScheduled = HANDSHAKE_SCHEDULE[HANDSHAKE_SCHEDULE.length - 1];
+      const linearStartTid = setTimeout(() => {
+        if (token || handshakeFailed) return;
+        handshakeLinear = setInterval(() => {
+          if (token || handshakeFailed) {
+            clearInterval(handshakeLinear);
+            handshakeLinear = null;
+            return;
+          }
+          sendReady();
+        }, HANDSHAKE_LINEAR_INTERVAL);
+      }, lastScheduled + HANDSHAKE_LINEAR_INTERVAL);
+      handshakeTimers.push(linearStartTid);
+
+      // Soft hint at 3s, urgent hint at 10s, hard failure at 30s
+      handshakeTimers.push(setTimeout(() => {
+        if (!token && !handshakeFailed) showConnectingHint("soft");
+      }, HANDSHAKE_SOFT_HINT_AT));
+      handshakeTimers.push(setTimeout(() => {
+        if (!token && !handshakeFailed) showConnectingHint("urgent");
+      }, HANDSHAKE_URGENT_HINT_AT));
+      handshakeTimers.push(setTimeout(() => {
+        if (!token && !handshakeFailed) showConnectionFailed();
+      }, HANDSHAKE_TIMEOUT_MS));
+    }
+
+    function stopHandshakeRetries() {
+      handshakeTimers.forEach(clearTimeout);
+      handshakeTimers = [];
+      if (handshakeLinear) {
+        clearInterval(handshakeLinear);
+        handshakeLinear = null;
+      }
+    }
+
+    function onTokenReceived(receivedToken) {
+      token = receivedToken;
+      stopHandshakeRetries();
+      hideConnectingHint();
+      // Hide failure card if it was showing (e.g. token arrived very late)
+      const failEl = document.getElementById("hero-connection-failed");
+      if (failEl) failEl.classList.add("hidden");
+      handshakeFailed = false;
+      fetchStatus(token);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      applyLangStatic();
+      startCountdown();
+
+      // Refresh "updated X minutes ago" chip every 30s
+      setInterval(() => {
+        if (!apiData || !apiData.today || !apiData.today.calculated_at) return;
+        const el = document.getElementById("hero-updated-text");
+        if (el) {
+          el.textContent = t("updatedAt", { n: relativeTimeFromNow(apiData.today.calculated_at) });
+        }
+      }, 30000);
+
+      // Wire connection-failed card buttons
+      const retryBtn = document.getElementById("connection-retry-btn");
+      if (retryBtn) {
+        retryBtn.addEventListener("click", () => {
+          // If inside iframe, ask parent to navigate (consistent with PWA nav interceptor).
+          // Otherwise navigate directly in current window.
+          if (window.self !== window.top) {
+            try {
+              window.parent.postMessage({ type: "PWA_NAVIGATE", url: SWAG_LOGIN_URL }, "*");
+              return;
+            } catch (_) { /* fall through to direct navigation */ }
+          }
+          window.location.href = SWAG_LOGIN_URL;
+        });
+      }
+      const rulesFallbackBtn = document.getElementById("connection-rules-btn");
+      if (rulesFallbackBtn) {
+        rulesFallbackBtn.addEventListener("click", openRulesModal);
+      }
+
+      // External access (non-iframe, non-dev): immediately show failure card.
+      // No point waiting 30s for a token that can never arrive in this context.
+      if (isExternalAccess) {
+        showConnectionFailed();
+        return;
+      }
+
+      if (!isDevMode) {
+        // First send immediately, then start the retry schedule
+        sendReady();
+        startHandshakeRetries();
+      }
+    });
+
+    // Listen for token messages
+    window.addEventListener("message", (event) => {
+      // Validate message shape (Q2 spec: origin validation delegated to host site;
+      // we still defensively check the payload itself.)
+      const data = event.data;
+      if (!data || typeof data !== "object" || typeof data.type !== "string") return;
+
+      if (data.type === "SET_TOKEN") {
+        const receivedToken = data.token;
+        if (typeof receivedToken !== "string" || !receivedToken) return;
+        // Length sanity (real SWAG tokens are ~524 chars; reject obvious garbage)
+        if (receivedToken.length < 20 || receivedToken.length > 4096) return;
+        if (receivedToken === token) return;  // dedupe identical
+        onTokenReceived(receivedToken);
+      }
+    });
+
+    // Pause retries when tab hidden, resume on return
+    document.addEventListener("visibilitychange", () => {
+      if (token || isDevMode) return;
+      if (document.hidden) {
+        // Going to background: pause retries to save battery / network
+        stopHandshakeRetries();
+      } else if (!handshakeFailed) {
+        // Coming back to foreground: try once immediately, then resume schedule
+        sendReady();
+        startHandshakeRetries();
+      }
+    });
+
+    /* ═══════════════════════════════════════════════════
+       PWA Navigation Interceptor
+    ═══════════════════════════════════════════════════ */
+    document.addEventListener("click", (e) => {
+      const link = e.target.closest("a[target='_blank']");
+      if (!link || window.self === window.top) return;
+      try {
+        const url = new URL(link.href);
+        if (["swag.live", "www.swag.live"].includes(url.hostname)) {
+          e.preventDefault();
+          window.parent.postMessage({ type: "PWA_NAVIGATE", url: link.href }, "*");
+        }
+      } catch (_) {}
+    });
+  </script>
+</body>
+</html>
