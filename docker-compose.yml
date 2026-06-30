@@ -1,0 +1,16 @@
+# 本機與 NAS DS425+ 共用。NAS 上用 Container Manager 匯入此專案即可。
+services:
+  app:
+    build: .
+    container_name: stock-tracker
+    ports:
+      - "8080:8000"          # 瀏覽器連 http://<本機或NAS-IP>:8080
+    volumes:
+      - ./data:/app/data     # SQLite 與抓下來的資料持久化在這（不進 git）
+    env_file:
+      - .env
+    environment:
+      - TZ=Asia/Taipei
+      - DATA_DIR=/app/data
+    restart: unless-stopped
+    mem_limit: 512m          # DS425+ 記憶體有限，留資源給 DSM
